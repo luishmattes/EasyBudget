@@ -1,6 +1,7 @@
 // src/routes/gastos.ts
 import { Router, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { z } from 'zod';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -70,22 +71,67 @@ router.delete('/:id', async (req, res) => {
 // GET /gastos/estatisticas - Estatísticas por categoria
 router.get('/estatisticas', async (req, res) => {
   try {
+    const { inicio, fim } = filtroSchema.parse(req.query);
+
+    const where = inicio && fim ? {
+      data: {
+        gte: new Date(inicio),
+        lte: new Date(fim),
+      },
+    } : {};
+
     const estatisticas = await prisma.gasto.groupBy({
       by: ['categoria'],
       _sum: {
         valor: true,
       },
-      orderBy: {
-        _sum: {
-          valor: 'desc',
-        },
-      },
+      where,
     });
 
     res.json(estatisticas);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Erro ao calcular estatísticas' });
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: error.errors });
+    }
+
+    console.error('Erro ao buscar estatísticas:', error);
+    res.status(500).json({ error: 'Erro ao buscar estatísticas' });
+  }
+});
+
+
+// src/routes/gastos.ts
+
+const filtroSchema = z
+  .object({
+    inicio: z.string().optional().refine((val) => !val || !isNaN(Date.parse(val)), {
+      message: "Data de início inválida",
+    }),
+    fim: z.string().optional().refine((val) => !val || !isNaN(Date.parse(val)), {
+      message: "Data de fim inválida",
+    }),
+  });
+
+router.get('/', async (req, res) => {
+  try {
+    const { inicio, fim } = filtroSchema.parse(req.query);
+
+    const where = inicio && fim ? {
+      data: {
+        gte: new Date(inicio),
+        lte: new Date(fim),
+      },
+    } : undefined;
+
+    const gastos = await prisma.gasto.findMany({ where });
+    res.json(gastos);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: error.errors });
+    }
+
+    console.error('Erro ao buscar gastos:', error);
+    res.status(500).json({ error: 'Erro ao buscar gastos' });
   }
 });
 
