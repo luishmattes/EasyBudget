@@ -1,5 +1,5 @@
 // src/routes/gastos.ts
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 
 const router = Router();
@@ -64,6 +64,28 @@ router.delete('/:id', async (req, res) => {
     res.status(204).send();
   } catch (err) {
     res.status(404).json({ erro: 'Gasto não encontrado.' });
+  }
+});
+
+// GET /gastos/estatisticas - Estatísticas por categoria
+router.get('/estatisticas', async (req, res) => {
+  try {
+    const estatisticas = await prisma.gasto.groupBy({
+      by: ['categoria'],
+      _sum: {
+        valor: true,
+      },
+      orderBy: {
+        _sum: {
+          valor: 'desc',
+        },
+      },
+    });
+
+    res.json(estatisticas);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erro ao calcular estatísticas' });
   }
 });
 
