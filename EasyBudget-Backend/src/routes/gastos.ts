@@ -3,6 +3,7 @@ import { Router, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
 
+
 const router = Router();
 const prisma = new PrismaClient();
 
@@ -100,6 +101,7 @@ router.get('/estatisticas', async (req, res) => {
 });
 
 
+
 // src/routes/gastos.ts
 
 const filtroSchema = z
@@ -123,15 +125,31 @@ router.get('/', async (req, res) => {
       },
     } : undefined;
 
-    const gastos = await prisma.gasto.findMany({ where });
+    const gastos = await prisma.gasto.findMany({
+      where,
+      orderBy: { data: 'desc' },
+    });
+
     res.json(gastos);
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: error.errors });
     }
-
     console.error('Erro ao buscar gastos:', error);
     res.status(500).json({ error: 'Erro ao buscar gastos' });
+  }
+});
+
+router.get('/categorias', async (_req: Request, res: Response) => {
+  try {
+    const categorias = await prisma.gasto.findMany({
+      select: { categoria: true },
+      distinct: ['categoria'],
+    });
+    res.json(categorias.map((c) => c.categoria));
+  } catch (error) {
+    console.error('Erro ao buscar categorias:', error);
+    res.status(500).json({ error: 'Erro ao buscar categorias' });
   }
 });
 

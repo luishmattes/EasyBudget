@@ -1,0 +1,288 @@
+/* Paleta de Cores */
+:root {
+  --azul-escuro: #2d0354;
+  --azul-medio: #005f8d;
+  --branco: #ffffff;
+  --azul-suave: hsl(211, 68%, 86%);
+  --azul-gradient-start: #001f3d;
+  --azul-gradient-end: #003b5c;
+  --green: #00b300;
+  --red: #ab1b13;
+}
+
+/* Fontes */
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;500&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Roboto Slab', serif;
+  background: linear-gradient(180deg, var(--azul-gradient-start), var(--azul-gradient-end));
+  color: var(--branco);
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+}
+
+.container {
+  background-color: var(--branco);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  border-radius: 30px;
+  width: clamp(300px, 90%, 900px);
+  margin: 2rem auto;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+}
+
+/* Ajustes para telas menores */
+@media (max-width: 600px) {
+  .container {
+    padding: 1.5rem 1rem;
+    margin: 1rem auto;
+  }
+}
+
+/* Ajustes para telas muito grandes */
+@media (min-width: 1400px) {
+  .container {
+    max-width: 1000px;
+  }
+}
+
+
+h1 {
+  text-align: center;
+  color: var(--azul-escuro);
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 0rem;
+  margin-top: 1.5rem;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+label {
+  font-weight: bold;
+  color: var(--azul-escuro);
+}
+
+input, select, button {
+  padding: 1rem;
+  border: 2px solid var(--azul-escuro);
+  background-color: var(--branco);
+  border-radius: 30px;
+  font-size: 1rem;
+  width: 100%;
+  transition: border-color 0.3s ease;
+}
+
+input:focus, select:focus {
+  border-color: var(--green);
+  outline: none;
+}
+
+button {
+  background-color: var(--azul-medio);
+  color: var(--branco);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+/* */
+button:hover {
+  background-color: var(--azul-gradient-end);
+}
+
+table {
+  width: 100%;
+  margin-top: 2rem;
+  border-collapse: collapse;
+  font-size: 1rem;
+}
+
+th, td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--azul-escuro);
+}
+
+th {
+  background-color: var(--azul-medio);
+  color: var(--branco);
+}
+
+button {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  margin-right: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1.5rem;
+  }
+
+  h1 {
+    font-size: 1.7rem;
+  }
+
+  input, select, button {
+    font-size: 1rem;
+  }
+
+  table {
+    font-size: 0.9rem;
+  }
+
+  button {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 10px;
+    justify-content: flex-start;
+  }
+
+  .container {
+    padding: 1rem;
+    width: 100%;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  input, select, button {
+    font-size: 0.9rem;
+  }
+
+  table {
+    font-size: 0.8rem;
+  }
+
+  button {
+    font-size: 1rem;
+  }
+}
+
+/* Lista de Gastos */
+table {
+  width: 100%;
+  margin-top: 0.5rem;
+  border-collapse: collapse;
+  font-size: 1rem;
+  border-radius: 20px;
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.605);
+  overflow: hidden;
+}
+
+h2 {
+  text-align: left;
+  text-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  color: var(--azul-gradient-start);
+  font-size: 2rem;
+  margin-bottom: 0rem;
+  margin-top: 0.5rem;
+}
+
+th, td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 2px solid var(--azul-gradient-start);
+}
+
+th {
+  background-color: var(--azul-gradient-start);
+  color: var(--branco);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+td {
+  color: var(--azul-gradient-end);
+  font-weight: 700;
+}
+
+tr:hover {
+  background-color: var(--azul-suave);
+}
+
+button {
+  margin-top: 0.1rem;
+  margin-bottom: 0.1rem;
+  height: 3rem;
+  padding: 0.4rem 0.8rem;
+  font-weight: 700;
+  margin-right: 0.5rem;
+  background-color: var(--azul-escuro);
+  color: var(--branco);
+  border: none;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: background-color 0.3s ease;
+}
+
+
+/* editar/excluir */
+button:hover {
+  background-color: var(--red);
+}
+
+button.delete {
+  background-color: #e74c3c;
+}
+
+button.delete:hover {
+  background-color: #c0392b;
+}
+
+/* Responsividade para telas menores */
+@media (max-width: 768px) {
+  table {
+    font-size: 0.9rem;
+  }
+
+  th, td {
+    padding: 0.8rem;
+  }
+
+  button {
+    font-size: 1rem;
+    padding: 0.6rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  table {
+    font-size: 0.8rem;
+  }
+
+  th, td {
+    padding: 0.6rem;
+  }
+
+  button {
+    font-size: 1rem;
+    padding: 0.5rem 0.9rem;
+  }
+}
+
