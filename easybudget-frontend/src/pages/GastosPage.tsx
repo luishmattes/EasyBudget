@@ -39,7 +39,7 @@ const GastosPage: React.FC = () => {
       return;
     }
 
-    const gasto = { descricao, valor, categoria, data };
+    const gasto = { descricao, valor, categoria,  data: new Date(data + 'T12:00:00').toISOString() };
     setLoading(true);
     try {
       if (editando) {
@@ -71,7 +71,7 @@ const GastosPage: React.FC = () => {
     setDescricao(gasto.descricao);
     setValor(gasto.valor);
     setCategoria(gasto.categoria);
-    setData(gasto.data);
+    setData(gasto.data.split('T')[0]);
     setEditando(gasto);
   };
 
@@ -159,7 +159,7 @@ const GastosPage: React.FC = () => {
               <td>{gasto.descricao}</td>
               <td>R$ {gasto.valor.toFixed(2)}</td>
               <td>{gasto.categoria}</td>
-              <td>{new Date(gasto.data).toLocaleDateString()}</td>
+              <td>{new Date(gasto.data).toLocaleDateString('pt-BR')}</td>
               <td>
                 <button onClick={() => editarGasto(gasto)}>Editar</button>
                 <button onClick={() => excluirGasto(gasto.id)}>Excluir</button>
