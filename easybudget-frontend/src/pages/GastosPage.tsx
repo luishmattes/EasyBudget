@@ -52,6 +52,10 @@ const GastosPage: React.FC = () => {
     }
   };
 
+  const categoriasExistentes = Array.from(new Set(gastos.map((g) => g.categoria)));
+  const [sugestoes, setSugestoes] = useState<string[]>([]);
+  const [mostrarSugestoes, setMostrarSugestoes] = useState(false);
+
   // Adicionar ou editar um gasto
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -143,23 +147,82 @@ const GastosPage: React.FC = () => {
             <label>Valor:</label>
             <input
               type="text"
-              value={valor === 0 ? '' : valor} // Exibe valor em branco se for zero
+              maxLength={15} // Limita a digitação
+              value={valor === 0 ? '' : valor}
               onChange={(e) => {
                 const novoValor = formatarValor(e.target.value);
-                setValor(novoValor ? parseFloat(novoValor) : 0); // Atualiza o valor
+                setValor(novoValor ? parseFloat(novoValor) : 0);
               }}
               required
             />
           </div>
-          <div>
-            <label>Categoria:</label>
-            <input
-              type="text"
-              value={categoria}
-              onChange={(e) => setCategoria(e.target.value)}
-              required
-            />
-          </div>
+          <div style={{ position: 'relative' }}>
+  <label>Categoria:</label>
+  <input
+    type="text"
+    value={categoria}
+    onChange={(e) => {
+      const input = e.target.value;
+      setCategoria(input);
+      if (input.length > 0) {
+        const filtradas = categoriasExistentes.filter((cat) =>
+          cat.toLowerCase().includes(input.toLowerCase())
+        );
+        setSugestoes(filtradas);
+        setMostrarSugestoes(filtradas.length > 0);
+      } else {
+        setMostrarSugestoes(false);
+      }
+    }}
+    onFocus={() => {
+      if (categoria.length > 0 && sugestoes.length > 0) {
+        setMostrarSugestoes(true);
+      }
+    }}
+    onBlur={() => {
+      setTimeout(() => setMostrarSugestoes(false), 100); // Espera clique em sugestão
+    }}
+    required
+  />
+
+  {mostrarSugestoes && (
+    <ul
+      style={{
+        position: 'absolute',
+        top: '100%',
+        left: 0,
+        width: '100%',
+        maxHeight: '150px',
+        overflowY: 'auto',
+        backgroundColor: 'white',
+        border: '1px solid #ccc',
+        borderRadius: '5px',
+        zIndex: 999,
+        color: '#000',
+        listStyle: 'none',
+        padding: '0.5rem 0',
+        margin: 0,
+      }}
+    >
+      {sugestoes.map((sugestao, index) => (
+        <li
+          key={index}
+          style={{
+            padding: '0.5rem 1rem',
+            cursor: 'pointer',
+          }}
+          onMouseDown={() => {
+            setCategoria(sugestao);
+            setMostrarSugestoes(false);
+          }}
+        >
+          {sugestao}
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
+
           <div>
             <label>Data:</label>
             <input

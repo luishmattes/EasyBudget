@@ -316,6 +316,11 @@ tr:hover {
 
 /* --- RESPONSIVIDADE --- */
 
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
 @media (max-width: 900px) {
   .home-container {
     flex-direction: column;
