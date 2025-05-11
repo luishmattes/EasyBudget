@@ -1,5 +1,5 @@
+import '../styles/EstatisticasPage.css';
 import React, { useEffect, useState } from 'react';
-import api from '../services/api';
 import { Link } from 'react-router-dom';
 import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
@@ -16,38 +16,37 @@ interface Estatistica {
 
 const EstatisticasPage: React.FC = () => {
   const [estatisticas, setEstatisticas] = useState<Estatistica[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-  const fetchEstatisticas = async () => {
-    try {
-      const response = await axios.get('http://localhost:3000/gastos/estatisticas');
-      console.log('Dados recebidos:', response.data);  // Isso deve mostrar os dados no console
-      setEstatisticas(response.data);  // Atualizando o estado com os dados recebidos
-    } catch (error) {
-      console.error("Erro ao buscar estatísticas", error);
-    }
-  };
+    const fetchEstatisticas = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const { data } = await axios.get('http://localhost:3000/gastos/estatisticas');
+        setEstatisticas(data);
+      } catch (error) {
+        setError('Erro ao buscar estatísticas. Tente novamente.');
+        console.error('Erro ao buscar estatísticas', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  fetchEstatisticas();
-}, []); 
+    fetchEstatisticas();
+  }, []); 
 
   // Dados para o gráfico
   const pieData = {
-    labels: estatisticas.map((item) => item.categoria),
+    labels: estatisticas.map(({ categoria }) => categoria),
     datasets: [
       {
         label: 'Gastos por Categoria',
-        data: estatisticas.map((item) => item._sum.valor),
+        data: estatisticas.map(({ _sum }) => _sum.valor),
         backgroundColor: [
-          '#003b5c',
-          '#005f8d',
-          '#2d0354',
-          '#860802',
-          '#0b7947',
-          '#a1c9f1',
-          '#ff6384',
-          '#36a2eb',
-          '#ffcd56',
+          '#003b5c', '#005f8d', '#2d0354', '#860802', '#0b7947',
+          '#a1c9f1', '#ff6384', '#36a2eb', '#ffcd56',
         ],
         borderWidth: 1,
       },
@@ -62,46 +61,48 @@ const EstatisticasPage: React.FC = () => {
       },
     },
   };
-  
 
   return (
-  <>
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-6">Estatísticas por Categoria</h1>
+    <div className="estatisticas-container">
+      <h1 className="estatisticas-title">Estatísticas por Categoria</h1>
 
-      {/* Tabela */}
-      <table className="min-w-full border border-gray-300 mb-10">
-        <thead>
-          <tr className="bg-gray-200">
-            <th className="text-left p-2 border">Categoria</th>
-            <th className="text-left p-2 border">Total Gasto (R$)</th>
-          </tr>
-        </thead>
-        <tbody>
-          {estatisticas.map((item) => (
-            <tr key={item.categoria} className="border-t">
-              <td className="p-2 border">{item.categoria}</td>
-              <td className="p-2 border">R$ {item._sum.valor.toFixed(2)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {loading ? (
+        <div className="loading">Carregando...</div>
+      ) : error ? (
+        <div className="error-message">{error}</div>
+      ) : (
+        <>
+          {/* Tabela */}
+          <table className="table">
+            <thead>
+              <tr>
+                <th className="table-cell">Categoria</th>
+                <th className="table-cell">Total Gasto (R$)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {estatisticas.map(({ categoria, _sum }) => (
+                <tr key={categoria}>
+                  <td className="table-cell">{categoria}</td>
+                  <td className="table-cell">R$ {_sum.valor.toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
 
-      {/* Gráfico de Pizza */}
-      <div className="bg-white p-6 rounded-lg shadow-lg max-w-xl mx-auto">
-        <h2 className="text-xl font-semibold text-center mb-4 text-black">
-          Representatividade por Categoria
-        </h2>
-        <Pie data={pieData} options={pieOptions} />
-      </div>
+          {/* Gráfico de Pizza */}
+          <div className="chart-container">
+            <h2 className="chart-title">Representatividade por Categoria</h2>
+            <Pie data={pieData} options={pieOptions} />
+          </div>
+        </>
+      )}
+
+      <Link to="/gastos" className="link-voltar">
+        <button className="botao-voltar">← Voltar</button>
+      </Link>
     </div>
-
-    <Link to="/gastos" className="botao-sair">
-      <button>← Voltar</button>
-    </Link>
-  </>
-);
-
+  );
 };
 
 export default EstatisticasPage;

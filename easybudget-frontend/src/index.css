@@ -22,7 +22,7 @@
 
 body {
   font-family: 'Roboto Slab', serif;
-  background: linear-gradient(180deg, var(--azul-gradient-start), var(--azul-gradient-end));
+  background: linear-gradient(180deg, var(--azul-gradient-start), var(--azul-escuro));
   color: var(--branco);
   padding: 0;
   margin: 0;
@@ -239,8 +239,9 @@ tr:hover {
 }
 
 .botao-estatisticas button {
-  background-color: var(--azul-escuro);
+  background-color: var(--green);
   color: var(--branco);
+  text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
   padding: 0.6rem 1.2rem;
   border: none;
   border-radius: 20px;
@@ -255,7 +256,7 @@ tr:hover {
 }
 
 .botao-estatisticas button:hover {
-  background-color: var(--green);
+  background-color: var(--azul-medio);
 }
 
 
@@ -267,8 +268,9 @@ tr:hover {
 }
 
 .botao-sair button {
-  background-color: var(--azul-escuro);
-  color: var(--branco);
+  background-color: var(--branco);
+  color: var(--azul-gradient-start);
+  text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
   padding: 0.6rem 1.2rem;
   border: none;
   border-radius: 20px;
@@ -285,31 +287,6 @@ tr:hover {
 /* botão de sair */
 .botao-sair button:hover {
   background-color: var(--red);
-}
-
-/* botão de voltar para home */
-.botao-voltar-home {
-  position: fixed;
-  bottom: 1.5rem;
-  left: 1.5rem;
-  z-index: 999;
-}
-
-.botao-voltar-home button {
-  background-color: var(--azul-escuro);
-  color: var(--branco);
-  padding: 0.6rem 1.2rem;
-  border: none;
-  border-radius: 20px;
-  font-size: 0.95rem;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-  transition: background-color 0.3s ease;
-}
-
-.botao-voltar-home button:hover {
-  background-color: var(--azul-medio);
 }
 
 
@@ -427,9 +404,6 @@ tr:hover {
     padding: 0.6rem;
   }
 
-  th, td {
-    padding: 0.5rem;
-  }
 
   .home-card {
     padding: 1.5rem;

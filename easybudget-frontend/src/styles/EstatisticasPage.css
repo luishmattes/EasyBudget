@@ -1,0 +1,165 @@
+/* Paleta de Cores */
+:root {
+  --azul-escuro: #2d0354;
+  --azul-medio: #005f8d;
+  --branco: #ffffff;
+  --azul-suave: hsl(211, 68%, 86%);
+  --azul-gradient-start: #001f3d;
+  --azul-gradient-end: #003b5c;
+  --green: #0b7947;
+  --red: #860802;
+  --grey: #747373dd;
+}
+
+/* Fontes */
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;500&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Roboto Slab', serif;
+  background: linear-gradient(180deg, var(--azul-gradient-start), var(--azul-escuro));
+  color: var(--branco);
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+}
+
+/* Container principal */
+.estatisticas-container {
+  padding: 2rem;
+  background-color: var(--branco);
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 1200px;
+  margin: 2rem auto;  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Tabela */
+.estatisticas-table {
+  width: 100%;
+  max-width: 900px; 
+  margin-bottom: 2.5rem;
+  border-collapse: collapse;
+  text-align: center;  
+}
+
+.estatisticas-table th,
+.estatisticas-table td {
+  padding: 1.2rem;
+  text-align: center;  
+  border-bottom: 2px solid var(--azul-suave);
+  font-size: 1rem;
+  color: var(--azul-escuro);
+}
+
+.estatisticas-table th {
+  background-color: var(--azul-escuro);
+  color: var(--branco);
+  font-size: 1.25rem;
+  text-transform: uppercase;
+}
+
+.estatisticas-table td {
+  background-color: var(--branco);
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Gráfico */
+.chart-container {
+  background-color: var(--azul-suave);
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  max-width: 35rem;
+  margin: 2rem auto;
+}
+
+.chart-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 1rem;
+  color: var(--azul-escuro);
+  text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Botões */
+.botao-voltar {
+  background-color: var(--azul-escuro);
+  color: var(--branco);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s;
+  border: none;
+  border-radius: 0.75rem;
+  margin-top: 1.5rem;
+  padding: 0.8rem 1.5rem;
+  width: 100%;
+  display: block;
+  text-align: center;
+}
+
+.botao-voltar:hover {
+  background-color: var(--green);
+  transform: scale(1.05);
+}
+
+/* Responsividade */
+@media (max-width: 1024px) {
+  .estatisticas-container {
+    padding: 1.5rem;
+  }
+
+  .estatisticas-title {
+    font-size: 2.2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .estatisticas-table th,
+  .estatisticas-table td {
+    padding: 1rem;
+    font-size: 0.9rem;
+  }
+
+  .chart-container {
+    max-width: 30rem;
+  }
+
+  .estatisticas-title {
+    font-size: 2rem;
+  }
+
+  .botao-voltar {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .estatisticas-title {
+    font-size: 1.7rem;
+  }
+
+  .estatisticas-table th,
+  .estatisticas-table td {
+    font-size: 0.85rem;
+  }
+
+  .chart-container {
+    max-width: 100%;
+  }
+}

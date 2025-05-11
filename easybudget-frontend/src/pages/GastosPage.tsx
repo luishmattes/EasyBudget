@@ -274,11 +274,11 @@ const GastosPage: React.FC = () => {
         </table>
       </div>
       <Link to="/estatisticas" className="botao-estatisticas">
-        <button>📊 Estatísticas</button>
+        <button>Estatísticas</button>
       </Link>
       <Link to="/" className="botao-sair">
         <button>
-          ← Sair
+          Sair
         </button>
       </Link>
     </>
