@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
+
 
 interface Gasto {
   id: number;
@@ -39,7 +41,7 @@ const GastosPage: React.FC = () => {
       return;
     }
 
-    const gasto = { descricao, valor, categoria,  data: new Date(data + 'T12:00:00').toISOString() };
+    const gasto = { descricao, valor, categoria, data: new Date(data + 'T12:00:00').toISOString() };
     setLoading(true);
     try {
       if (editando) {
@@ -97,78 +99,88 @@ const GastosPage: React.FC = () => {
   }, []);
 
   return (
-    <div className="container">
-      <h1>Gestão de Gastos</h1>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Descrição:</label>
-          <input
-            type="text"
-            value={descricao}
-            onChange={(e) => setDescricao(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>Valor:</label>
-          <input
-            type="number"
-            value={valor}
-            onChange={(e) => setValor(Number(e.target.value))}
-            required
-          />
-        </div>
-        <div>
-          <label>Categoria:</label>
-          <input
-            type="text"
-            value={categoria}
-            onChange={(e) => setCategoria(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>Data:</label>
-          <input
-            type="date"
-            value={data}
-            onChange={(e) => setData(e.target.value)}
-            required
-          />
-        </div>
-        <button type="submit" disabled={loading}>
-          {loading ? 'Carregando...' : editando ? 'Atualizar Gasto' : 'Adicionar Gasto'}
-        </button>
-      </form>
+    <>
+      <div className="container">
+        <h1>Gestão de Gastos</h1>
+        <form onSubmit={handleSubmit}>
+          <div>
+            <label>Descrição:</label>
+            <input
+              type="text"
+              value={descricao}
+              onChange={(e) => setDescricao(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label>Valor:</label>
+            <input
+              type="number"
+              value={valor}
+              onChange={(e) => setValor(Number(e.target.value))}
+              required
+            />
+          </div>
+          <div>
+            <label>Categoria:</label>
+            <input
+              type="text"
+              value={categoria}
+              onChange={(e) => setCategoria(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label>Data:</label>
+            <input
+              type="date"
+              value={data}
+              onChange={(e) => setData(e.target.value)}
+              required
+            />
+          </div>
+          <button type="submit" disabled={loading}>
+            {loading ? 'Carregando...' : editando ? 'Atualizar Gasto' : 'Adicionar Gasto'}
+          </button>
+        </form>
 
-      <h2>Lista de Gastos</h2>
-      {loading && <p>Carregando os dados...</p>}
-      <table>
-        <thead>
-          <tr>
-            <th>Descrição</th>
-            <th>Valor</th>
-            <th>Categoria</th>
-            <th>Data</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {gastos.map((gasto) => (
-            <tr key={gasto.id}>
-              <td>{gasto.descricao}</td>
-              <td>R$ {gasto.valor.toFixed(2)}</td>
-              <td>{gasto.categoria}</td>
-              <td>{new Date(gasto.data).toLocaleDateString('pt-BR')}</td>
-              <td>
-                <button onClick={() => editarGasto(gasto)}>Editar</button>
-                <button onClick={() => excluirGasto(gasto.id)}>Excluir</button>
-              </td>
+        <h2>Lista de Gastos</h2>
+        {loading && <p>Carregando os dados...</p>}
+        <table>
+          <thead>
+            <tr>
+              <th>Descrição</th>
+              <th>Valor</th>
+              <th>Categoria</th>
+              <th>Data</th>
+              <th>Ações</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {gastos.map((gasto) => (
+              <tr key={gasto.id}>
+                <td>{gasto.descricao}</td>
+                <td>R$ {gasto.valor.toFixed(2)}</td>
+                <td>{gasto.categoria}</td>
+                <td>{new Date(gasto.data).toLocaleDateString('pt-BR')}</td>
+                <td>
+                  <button onClick={() => editarGasto(gasto)}>Editar</button>
+                  <button onClick={() => excluirGasto(gasto.id)}>Excluir</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <Link to="/estatisticas" className="botao-estatisticas">
+        <button>📊 Estatísticas</button>
+      </Link>
+      <Link to="/" className="botao-sair">
+        <button>
+          ← Sair
+        </button>
+      </Link>
+    </>
   );
 };
 

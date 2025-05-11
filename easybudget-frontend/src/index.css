@@ -7,7 +7,7 @@
   --azul-gradient-start: #001f3d;
   --azul-gradient-end: #003b5c;
   --green: #0b7947;
-  --red: #ab1b13;
+  --red: #860802;
   --grey: #747373dd;
 }
 
@@ -226,6 +226,89 @@ tr:hover {
 .home-button:hover {
   background-color: var(--azul-escuro);
 }
+
+.botao-estatisticas {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 999;
+}
+
+.botao-estatisticas button {
+  background-color: var(--azul-escuro);
+  color: var(--branco);
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  transition: background-color 0.3s ease;
+}
+
+.botao-estatisticas button:hover {
+  background-color: var(--green);
+}
+
+
+.botao-sair{
+  position: fixed;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  z-index: 999;
+}
+
+.botao-sair button {
+  background-color: var(--azul-escuro);
+  color: var(--branco);
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  transition: background-color 0.3s ease;
+}
+
+/* botão de sair */
+.botao-sair button:hover {
+  background-color: var(--red);
+}
+
+/* botão de voltar para home */
+.botao-voltar-home {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  z-index: 999;
+}
+
+.botao-voltar-home button {
+  background-color: var(--azul-escuro);
+  color: var(--branco);
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  transition: background-color 0.3s ease;
+}
+
+.botao-voltar-home button:hover {
+  background-color: var(--azul-medio);
+}
+
+
 
 /* --- RESPONSIVIDADE --- */
 
