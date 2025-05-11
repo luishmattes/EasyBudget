@@ -6,9 +6,9 @@
   --azul-suave: hsl(211, 68%, 86%);
   --azul-gradient-start: #001f3d;
   --azul-gradient-end: #003b5c;
-  --green: #00b300;
+  --green: #0b7947;
   --red: #ab1b13;
-  --grey: #ffffffdd;
+  --grey: #747373dd;
 }
 
 /* Fontes */
@@ -39,49 +39,43 @@ body {
   border-radius: 30px;
   width: clamp(300px, 90%, 900px);
   margin: 2rem auto;
-  box-sizing: border-box;
   transition: all 0.3s ease;
 }
 
-/* Ajustes para telas menores */
-@media (max-width: 600px) {
-  .container {
-    padding: 1.5rem 1rem;
-    margin: 1rem auto;
-  }
-}
-
-/* Ajustes para telas muito grandes */
-@media (min-width: 1400px) {
-  .container {
-    max-width: 1000px;
-  }
-}
-
-
+/* Cabeçalhos */
 h1 {
   text-align: center;
   color: var(--azul-escuro);
-  font-size: 4rem;
+  text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  font-size: 3rem;
   margin-bottom: 1.5rem;
 }
 
+h2 {
+  text-align: left;
+  text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  color: var(--azul-gradient-start);
+  font-size: 2rem;
+  margin: 0.5rem 0;
+}
+
+/* Formulário */
 form {
   display: flex;
   flex-direction: column;
-  gap: 0rem;
+  gap: 1rem;
   margin-top: 1.5rem;
 }
 
 .input-group {
   display: flex;
   flex-direction: column;
-  gap: 0.1rem;
 }
 
 label {
   font-weight: bold;
   color: var(--azul-escuro);
+  text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
 input, select, button {
@@ -99,153 +93,22 @@ input:focus, select:focus {
   outline: none;
 }
 
+/* Botões */
 button {
-  background-color: var(--azul-medio);
-  color: var(--branco);
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-/* */
-button:hover {
-  background-color: var(--azul-gradient-end);
-}
-
-table {
-  width: 100%;
-  margin-top: 2rem;
-  border-collapse: collapse;
-  font-size: 1rem;
-}
-
-th, td {
-  padding: 1rem;
-  text-align: left;
-  border-bottom: 1px solid var(--azul-escuro);
-}
-
-th {
-  background-color: var(--azul-medio);
-  color: var(--branco);
-}
-
-button {
-  padding: 0.4rem 0.8rem;
-  font-size: 0.9rem;
-  margin-right: 0.5rem;
-}
-
-@media (max-width: 768px) {
-  .container {
-    padding: 1.5rem;
-  }
-
-  h1 {
-    font-size: 1.7rem;
-  }
-
-  input, select, button {
-    font-size: 1rem;
-  }
-
-  table {
-    font-size: 0.9rem;
-  }
-
-  button {
-    font-size: 1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  body {
-    padding: 10px;
-    justify-content: flex-start;
-  }
-
-  .container {
-    padding: 1rem;
-    width: 100%;
-  }
-
-  h1 {
-    font-size: 1.5rem;
-  }
-
-  input, select, button {
-    font-size: 0.9rem;
-  }
-
-  table {
-    font-size: 0.8rem;
-  }
-
-  button {
-    font-size: 1rem;
-  }
-}
-
-/* Lista de Gastos */
-table {
-  width: 100%;
-  margin-top: 0.5rem;
-  border-collapse: collapse;
-  font-size: 1rem;
-  border-radius: 20px;
-  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.605);
-  overflow: hidden;
-}
-
-h2 {
-  text-align: left;
-  text-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  color: var(--azul-gradient-start);
-  font-size: 2rem;
-  margin-bottom: 0rem;
-  margin-top: 0.5rem;
-}
-
-th, td {
-  padding: 1rem;
-  text-align: left;
-  border-bottom: 2px solid var(--azul-gradient-start);
-}
-
-th {
-  background-color: var(--azul-gradient-start);
-  color: var(--branco);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-}
-
-td {
-  color: var(--azul-gradient-end);
-  font-weight: 700;
-}
-
-tr:hover {
-  background-color: var(--azul-suave);
-}
-
-button {
-  margin-top: 0.1rem;
-  margin-bottom: 0.1rem;
-  height: 3rem;
-  padding: 0.4rem 0.8rem;
-  font-weight: 700;
-  margin-right: 0.5rem;
   background-color: var(--azul-escuro);
   color: var(--branco);
-  border: none;
+  font-size: 1rem;
+  font-weight: 700;
   cursor: pointer;
-  border-radius: 10px;
   transition: background-color 0.3s ease;
+  border: none;
+  border-radius: 10px;
+  margin-top: 0.5rem;
+  padding: 0.8rem 1.2rem;
 }
 
-
-/* editar/excluir */
 button:hover {
-  background-color: var(--red);
+  background-color: var(--green);
 }
 
 button.delete {
@@ -256,46 +119,46 @@ button.delete:hover {
   background-color: #c0392b;
 }
 
-/* Responsividade para telas menores */
-@media (max-width: 768px) {
-  table {
-    font-size: 0.9rem;
-  }
-
-  th, td {
-    padding: 0.8rem;
-  }
-
-  button {
-    font-size: 1rem;
-    padding: 0.6rem 1rem;
-  }
+/* Tabela */
+table {
+  width: 100%;
+  margin-top: 2rem;
+  border-collapse: collapse;
+  font-size: 1rem;
+  border-radius: 20px;
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
 }
 
-@media (max-width: 480px) {
-  table {
-    font-size: 0.8rem;
-  }
-
-  th, td {
-    padding: 0.6rem;
-  }
-
-  button {
-    font-size: 1rem;
-    padding: 0.5rem 0.9rem;
-  }
+th, td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 2px solid var(--azul-suave);
 }
 
+th {
+  background-color: var(--azul-gradient-start);
+  color: var(--branco);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
 
+td {
+  color: var(--azul-gradient-end);
+  text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  font-weight: 700;
+}
 
+tr:hover {
+  background-color: var(--azul-suave);
+}
 
+/* Página Home */
 .home-container {
   display: flex;
   flex-direction: row;
   min-height: 100vh;
   width: 100vw;
-  background: linear-gradient(180deg, var(--azul-medio), var(--azul-escuro));
+  background: linear-gradient(180deg, var(--azul-escuro), var(--grey));
   color: var(--branco);
   padding: 4rem;
 }
@@ -340,8 +203,6 @@ button.delete:hover {
 }
 
 .home-card h2 {
-  color: var(--azul-escuro); 
-  text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
   font-size: 2rem;
   margin-bottom: 1rem;
 }
@@ -349,13 +210,12 @@ button.delete:hover {
 .home-card p {
   font-size: 1.1rem;
   margin-bottom: 2rem;
-  color: var(--azul-escuro);
 }
 
 .home-button {
   padding: 1rem 2rem;
   font-size: 1.1rem;
-  background-color: var(--azul-escuro);
+  background-color: var(--azul-gradient-start);
   color: var(--branco);
   border: none;
   border-radius: 30px;
@@ -364,8 +224,10 @@ button.delete:hover {
 }
 
 .home-button:hover {
-  background-color: #000d99;
+  background-color: var(--azul-escuro);
 }
+
+/* --- RESPONSIVIDADE --- */
 
 @media (max-width: 900px) {
   .home-container {
@@ -374,14 +236,114 @@ button.delete:hover {
     text-align: center;
   }
 
-  .home-left,
-  .home-right {
-    flex: unset;
+  .home-left, .home-right {
     width: 100%;
     padding: 1rem 0;
   }
 
   .home-card {
     margin: 2rem auto;
+    padding: 2rem;
+  }
+
+  .home-left h1 {
+    font-size: 2.2rem;
+  }
+
+  .home-welcome-message {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  h1 {
+    font-size: 2rem;
+  }
+
+  h2 {
+    font-size: 1.6rem;
+  }
+
+  .container {
+    padding: 1.5rem;
+    width: 95%;
+  }
+
+  input, select, button {
+    font-size: 0.95rem;
+    padding: 0.8rem;
+  }
+
+  table {
+    font-size: 0.9rem;
+  }
+
+  th, td {
+    padding: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 0.5rem;
+    flex-direction: column;
+  }
+
+  .container {
+    padding: 1rem;
+    width: 100%;
+  }
+
+  h1 {
+    font-size: 1.7rem;
+  }
+
+  h2 {
+    font-size: 1.4rem;
+  }
+
+  input, select, button {
+    font-size: 0.9rem;
+    padding: 0.7rem;
+  }
+
+  table {
+    font-size: 0.8rem;
+  }
+
+  th, td {
+    padding: 0.6rem;
+  }
+
+  .home-button {
+    font-size: 1rem;
+    padding: 0.8rem 1.5rem;
+  }
+}
+
+@media (max-width: 320px) {
+  h1 {
+    font-size: 1.4rem;
+  }
+
+  h2 {
+    font-size: 1.2rem;
+  }
+
+  input, select, button {
+    font-size: 0.8rem;
+    padding: 0.6rem;
+  }
+
+  th, td {
+    padding: 0.5rem;
+  }
+
+  .home-card {
+    padding: 1.5rem;
+  }
+
+  .home-welcome-message {
+    font-size: 1rem;
   }
 }
