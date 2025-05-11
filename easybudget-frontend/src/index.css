@@ -33,6 +33,10 @@ body {
 }
 
 .container {
+  display: flex;
+  flex-direction: column;
+  align-items: center; 
+  justify-content: flex-start; 
   background-color: var(--branco);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   padding: 2rem;
@@ -121,7 +125,7 @@ button.delete:hover {
 
 /* Tabela */
 table {
-  width: 100%;
+  width: 80%;
   margin-top: 2rem;
   border-collapse: collapse;
   font-size: 1rem;

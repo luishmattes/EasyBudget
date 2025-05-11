@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 
-
 interface Gasto {
   id: number;
   descricao: string;
@@ -19,6 +18,26 @@ const GastosPage: React.FC = () => {
   const [data, setData] = useState('');
   const [editando, setEditando] = useState<Gasto | null>(null);
   const [loading, setLoading] = useState(false);
+  const [dataValida, setDataValida] = useState(true); // Estado para verificar a validade da data
+
+  // Função para validar se a data é válida
+  const validarData = (data: string): boolean => {
+    const dataInput = new Date(data);
+    const dataAtual = new Date();
+
+    // Verifica se a data é válida e não é no futuro
+    return dataInput.getTime() <= dataAtual.getTime() && !isNaN(dataInput.getTime());
+  };
+
+  // Função para formatar o valor, removendo o dígito '0' no início
+  const formatarValor = (valor: string): string => {
+    // Remove caracteres não numéricos e garanta que o valor seja maior que 0
+    let novoValor = valor.replace(/[^0-9.]/g, '');
+    if (novoValor.startsWith('0') && novoValor.length > 1) {
+      novoValor = novoValor.substring(1); // Remove o zero à esquerda
+    }
+    return novoValor;
+  };
 
   // Carregar gastos do backend
   const carregarGastos = async () => {
@@ -36,6 +55,14 @@ const GastosPage: React.FC = () => {
   // Adicionar ou editar um gasto
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validação de data
+    if (!validarData(data)) {
+      setDataValida(false);
+      return; // Se a data não for válida, impede o envio do formulário
+    }
+
+    // Validação do valor
     if (valor <= 0) {
       alert('O valor do gasto deve ser maior que zero!');
       return;
@@ -115,9 +142,12 @@ const GastosPage: React.FC = () => {
           <div>
             <label>Valor:</label>
             <input
-              type="number"
-              value={valor}
-              onChange={(e) => setValor(Number(e.target.value))}
+              type="text"
+              value={valor === 0 ? '' : valor} // Exibe valor em branco se for zero
+              onChange={(e) => {
+                const novoValor = formatarValor(e.target.value);
+                setValor(novoValor ? parseFloat(novoValor) : 0); // Atualiza o valor
+              }}
               required
             />
           </div>
@@ -135,9 +165,13 @@ const GastosPage: React.FC = () => {
             <input
               type="date"
               value={data}
-              onChange={(e) => setData(e.target.value)}
+              onChange={(e) => {
+                setData(e.target.value);
+                setDataValida(validarData(e.target.value)); // Atualiza a validade da data
+              }}
               required
             />
+            {!dataValida && <p style={{ color: 'red' }}>Data inválida! Por favor, insira uma data válida.</p>}
           </div>
           <button type="submit" disabled={loading}>
             {loading ? 'Carregando...' : editando ? 'Atualizar Gasto' : 'Adicionar Gasto'}
@@ -159,9 +193,13 @@ const GastosPage: React.FC = () => {
           <tbody>
             {gastos.map((gasto) => (
               <tr key={gasto.id}>
-                <td>{gasto.descricao}</td>
+                <td style={{ maxWidth: '200px', wordBreak: 'break-word', whiteSpace: 'normal' }}>
+                  {gasto.descricao}
+                </td>
                 <td>R$ {gasto.valor.toFixed(2)}</td>
-                <td>{gasto.categoria}</td>
+                <td style={{ maxWidth: '150px', wordBreak: 'break-word', whiteSpace: 'normal' }}>
+                  {gasto.categoria}
+                </td>
                 <td>{new Date(gasto.data).toLocaleDateString('pt-BR')}</td>
                 <td>
                   <button onClick={() => editarGasto(gasto)}>Editar</button>
