@@ -50,7 +50,7 @@ docker-compose up -d
 
 Altere seu .env para apontar para o container:
 
-DATABASE_URL="postgresql://user:password@postgres:5432/easybudget"
+DATABASE_URL="postgresql://user:password@localhost:5432/easybudget"
 
 Rode as migrations:
 
