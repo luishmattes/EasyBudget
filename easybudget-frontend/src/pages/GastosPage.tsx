@@ -18,7 +18,7 @@ const GastosPage: React.FC = () => {
   const [data, setData] = useState('');
   const [editando, setEditando] = useState<Gasto | null>(null);
   const [loading, setLoading] = useState(false);
-  const [dataValida, setDataValida] = useState(true); // Estado para verificar a validade da data
+  const [dataValida, setDataValida] = useState(true);
 
   // Função para validar se a data é válida
   const validarData = (data: string): boolean => {
@@ -31,10 +31,10 @@ const GastosPage: React.FC = () => {
 
   // Função para formatar o valor, removendo o dígito '0' no início
   const formatarValor = (valor: string): string => {
-    // Remove caracteres não numéricos e garanta que o valor seja maior que 0
+
     let novoValor = valor.replace(/[^0-9.]/g, '');
     if (novoValor.startsWith('0') && novoValor.length > 1) {
-      novoValor = novoValor.substring(1); // Remove o zero à esquerda
+      novoValor = novoValor.substring(1);
     }
     return novoValor;
   };
@@ -55,22 +55,30 @@ const GastosPage: React.FC = () => {
   const categoriasExistentes = Array.from(new Set(gastos.map((g) => g.categoria)));
   const [sugestoes, setSugestoes] = useState<string[]>([]);
   const [mostrarSugestoes, setMostrarSugestoes] = useState(false);
+  const [mensagem, setMensagem] = useState<string | null>(null);
 
   // Adicionar ou editar um gasto
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    // Validação de data
-    if (!validarData(data)) {
-      setDataValida(false);
-      return; // Se a data não for válida, impede o envio do formulário
-    }
 
     // Validação do valor
     if (valor <= 0) {
-      alert('O valor do gasto deve ser maior que zero!');
+      setMensagem('O valor do gasto deve ser maior que zero!');
+      setTimeout(() => setMensagem(null), 3000);
       return;
     }
+
+    // Validação da data
+    const validarData = (data: string): boolean => {
+      const dataInput = new Date(data);
+      return !isNaN(dataInput.getTime());
+    };
+    if (!validarData(data)) {
+      setDataValida(false);
+      setMensagem('Data inválida! Por favor, insira uma data válida.');
+      setTimeout(() => setMensagem(null), 3000);
+      return;
+    };
 
     const gasto = { descricao, valor, categoria, data: new Date(data + 'T12:00:00').toISOString() };
     setLoading(true);
@@ -78,11 +86,11 @@ const GastosPage: React.FC = () => {
       if (editando) {
         // Editar
         await axios.put(`http://localhost:3000/gastos/${editando.id}`, gasto);
-        alert('Gasto editado com sucesso!');
+        setMensagem('Gasto editado com sucesso!');
       } else {
         // Criar
         await axios.post('http://localhost:3000/gastos', gasto);
-        alert('Gasto adicionado com sucesso!');
+        setMensagem('Gasto adicionado com sucesso!');
       }
       // Limpar campos e recarregar os gastos
       setDescricao('');
@@ -93,9 +101,10 @@ const GastosPage: React.FC = () => {
       carregarGastos();
     } catch (error) {
       console.error('Erro ao salvar gasto:', error);
-      alert('Erro ao salvar gasto!');
+      setMensagem('Erro ao salvar gasto!');
     } finally {
       setLoading(false);
+      setTimeout(() => setMensagem(null), 3000);
     }
   };
 
@@ -157,71 +166,69 @@ const GastosPage: React.FC = () => {
             />
           </div>
           <div style={{ position: 'relative' }}>
-  <label>Categoria:</label>
-  <input
-    type="text"
-    value={categoria}
-    onChange={(e) => {
-      const input = e.target.value;
-      setCategoria(input);
-      if (input.length > 0) {
-        const filtradas = categoriasExistentes.filter((cat) =>
-          cat.toLowerCase().includes(input.toLowerCase())
-        );
-        setSugestoes(filtradas);
-        setMostrarSugestoes(filtradas.length > 0);
-      } else {
-        setMostrarSugestoes(false);
-      }
-    }}
-    onFocus={() => {
-      if (categoria.length > 0 && sugestoes.length > 0) {
-        setMostrarSugestoes(true);
-      }
-    }}
-    onBlur={() => {
-      setTimeout(() => setMostrarSugestoes(false), 100); // Espera clique em sugestão
-    }}
-    required
-  />
+            <label>Categoria:</label>
+            <input
+              type="text"
+              value={categoria}
+              onChange={(e) => {
+                const input = e.target.value;
+                setCategoria(input);
+                if (input.length > 0) {
+                  const filtradas = categoriasExistentes.filter((cat) =>
+                    cat.toLowerCase().includes(input.toLowerCase())
+                  );
+                  setSugestoes(filtradas);
+                  setMostrarSugestoes(filtradas.length > 0);
+                } else {
+                  setMostrarSugestoes(false);
+                }
+              }}
+              onFocus={() => {
+                setMostrarSugestoes(true);
+              }}
+              onBlur={() => {
+                setTimeout(() => setMostrarSugestoes(false), 100); // Espera clique em sugestão
+              }}
+              required
+            />
 
-  {mostrarSugestoes && (
-    <ul
-      style={{
-        position: 'absolute',
-        top: '100%',
-        left: 0,
-        width: '100%',
-        maxHeight: '150px',
-        overflowY: 'auto',
-        backgroundColor: 'white',
-        border: '1px solid #ccc',
-        borderRadius: '5px',
-        zIndex: 999,
-        color: '#000',
-        listStyle: 'none',
-        padding: '0.5rem 0',
-        margin: 0,
-      }}
-    >
-      {sugestoes.map((sugestao, index) => (
-        <li
-          key={index}
-          style={{
-            padding: '0.5rem 1rem',
-            cursor: 'pointer',
-          }}
-          onMouseDown={() => {
-            setCategoria(sugestao);
-            setMostrarSugestoes(false);
-          }}
-        >
-          {sugestao}
-        </li>
-      ))}
-    </ul>
-  )}
-</div>
+            {mostrarSugestoes && (
+              <ul
+                style={{
+                  position: 'absolute',
+                  top: '100%',
+                  left: 0,
+                  width: '100%',
+                  maxHeight: '150px',
+                  overflowY: 'auto',
+                  backgroundColor: 'white',
+                  border: '1px solid #ccc',
+                  borderRadius: '5px',
+                  zIndex: 999,
+                  color: '#000',
+                  listStyle: 'none',
+                  padding: '0.5rem 0',
+                  margin: 0,
+                }}
+              >
+                {sugestoes.map((sugestao, index) => (
+                  <li
+                    key={index}
+                    style={{
+                      padding: '0.5rem 1rem',
+                      cursor: 'pointer',
+                    }}
+                    onMouseDown={() => {
+                      setCategoria(sugestao);
+                      setMostrarSugestoes(false);
+                    }}
+                  >
+                    {sugestao}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
 
           <div>
             <label>Data:</label>
@@ -230,7 +237,7 @@ const GastosPage: React.FC = () => {
               value={data}
               onChange={(e) => {
                 setData(e.target.value);
-                setDataValida(validarData(e.target.value)); // Atualiza a validade da data
+                setDataValida(!isNaN(new Date(e.target.value).getTime()));
               }}
               required
             />
@@ -239,6 +246,19 @@ const GastosPage: React.FC = () => {
           <button type="submit" disabled={loading}>
             {loading ? 'Carregando...' : editando ? 'Atualizar Gasto' : 'Adicionar Gasto'}
           </button>
+          {mensagem && (
+            <div style={{
+              background: '#0D8E00',
+              color: '#fff',
+              padding: '10px 20px',
+              borderRadius: '8px',
+              marginBottom: '1rem',
+              textAlign: 'center',
+              transition: 'opacity 0.3s'
+            }}>
+              {mensagem}
+            </div>
+          )}
         </form>
 
         <h2>Lista de Gastos</h2>
