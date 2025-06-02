@@ -258,6 +258,123 @@ tr:hover {
   font-size: 1.1rem;
 }
 
+/* Container para label + ícone info */
+.label-info-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  color: var(--azul-escuro);
+  position: relative;
+  cursor: default;
+  user-select: none;
+}
+
+/* Ícone de informação — aparece só no hover da label */
+.label-info-wrapper .info-icon {
+  font-style: normal;
+  background-color: var(--azul-medio);
+  color: var(--branco);
+  font-size: 0.8rem;
+  font-weight: bold;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  cursor: help;
+  user-select: none;
+}
+
+/* Mostrar o ícone só ao passar o mouse na label-info-wrapper */
+.label-info-wrapper:hover .info-icon {
+  opacity: 1;
+}
+
+/* Tooltip que aparece ao passar no ícone */
+.label-info-wrapper .info-icon:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--azul-medio);
+  color: var(--branco);
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 10;
+}
+
+/* Pequeno triângulo do tooltip */
+.label-info-wrapper .info-icon:hover::before {
+  content: "";
+  position: absolute;
+  bottom: 115%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: var(--azul-medio) transparent transparent transparent;
+  opacity: 1;
+  z-index: 10;
+}
+
+/* Checkbox estilizado */
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  cursor: pointer;
+  color: var(--azul-escuro);
+  user-select: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.checkbox-container input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--green);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: box-shadow 0.3s ease;
+}
+
+.checkbox-container:hover {
+  color: var(--green);
+}
+
+.checkbox-container:hover input[type="checkbox"] {
+  box-shadow: 0 0 8px var(--green);
+}
+
+/* Inputs numéricos com box leve */
+input[type="number"] {
+  border: 2px solid var(--azul-medio);
+  border-radius: 12px;
+  padding: 0.6rem 1rem;
+  font-weight: 600;
+  color: var(--azul-escuro);
+  font-size: 1rem;
+  width: 130px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+input[type="number"]:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 12px var(--green);
+  outline: none;
+}
+
 
 
 /* Página Home */

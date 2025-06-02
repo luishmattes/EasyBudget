@@ -16,6 +16,8 @@ const GastosPage: React.FC = () => {
   const [valor, setValor] = useState('');
   const [categoria, setCategoria] = useState('');
   const [data, setData] = useState('');
+  const [gastoRecorrente, setGastoRecorrente] = useState('nao');
+  const [intervaloDias, setIntervaloDias] = useState(1);
   const [editando, setEditando] = useState<Gasto | null>(null);
   const [loading, setLoading] = useState(false);
   const [dataValida, setDataValida] = useState(true);
@@ -24,6 +26,8 @@ const GastosPage: React.FC = () => {
   const [mostrarSugestoes, setMostrarSugestoes] = useState(false);
   const [mostrarConfirmacao, setMostrarConfirmacao] = useState(false);
   const [idExcluir, setIdExcluir] = useState<number | null>(null);
+  const [numeroRepeticoes, setNumeroRepeticoes] = useState(1);
+  const [usoDataFixa, setUsoDataFixa] = useState(false);
 
   const carregarGastos = async () => {
     setLoading(true);
@@ -49,7 +53,7 @@ const GastosPage: React.FC = () => {
 
   const validarData = (data: string): boolean => {
     const dataInput = new Date(data);
-    return !isNaN(dataInput.getTime()) && dataInput <= new Date();
+    return !isNaN(dataInput.getTime());
   };
 
   const handleCategoriaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,33 +84,96 @@ const GastosPage: React.FC = () => {
 
     if (!validarData(data)) {
       setDataValida(false);
-      setMensagem('Data inválida! Por favor, insira uma data válida.');
+      setMensagem('erro:Data inválida! Por favor, insira uma data válida.');
       return;
     }
 
-    const gasto = { descricao, valor: valorNumerico, categoria, data: new Date(data + 'T12:00:00').toISOString() };
     setLoading(true);
+    const dataInicial = new Date(data + 'T12:00:00');
 
     try {
       if (editando) {
-        await axios.put(`http://localhost:3000/gastos/${editando.id}`, gasto);
+        const gastoAtualizado = {
+          descricao,
+          valor: valorNumerico,
+          categoria,
+          data: dataInicial.toISOString(),
+        };
+        await axios.put(`http://localhost:3000/gastos/${editando.id}`, gastoAtualizado);
         setMensagem('sucesso:Gasto editado com sucesso!');
       } else {
-        await axios.post('http://localhost:3000/gastos', gasto);
-        setMensagem('sucesso:Gasto adicionado com sucesso!');
+        const promessas = [];
+
+        if (gastoRecorrente === 'sim') {
+          if (usoDataFixa) {
+            const diaOriginal = dataInicial.getDate();
+
+            for (let i = 0; i < numeroRepeticoes; i++) {
+              const novaData = new Date(dataInicial);
+              const novoMes = novaData.getMonth() + i;
+
+              novaData.setMonth(novoMes);
+
+              const ultimoDiaMes = new Date(novaData.getFullYear(), novaData.getMonth() + 1, 0).getDate();
+
+              if (diaOriginal > ultimoDiaMes) {
+                novaData.setDate(ultimoDiaMes);
+              } else {
+                novaData.setDate(diaOriginal);
+              }
+
+              const novoGasto = {
+                descricao,
+                valor: valorNumerico,
+                categoria,
+                data: novaData.toISOString(),
+              };
+
+              promessas.push(axios.post('http://localhost:3000/gastos', novoGasto));
+            }
+          }
+          else {
+            for (let i = 0; i < numeroRepeticoes; i++) {
+              const novaData = new Date(dataInicial);
+              novaData.setDate(novaData.getDate() + i * intervaloDias);
+              const novoGasto = {
+                descricao,
+                valor: valorNumerico,
+                categoria,
+                data: novaData.toISOString(),
+              };
+              promessas.push(axios.post('http://localhost:3000/gastos', novoGasto));
+            }
+          }
+        } else {
+          const gastoUnico = {
+            descricao,
+            valor: valorNumerico,
+            categoria,
+            data: dataInicial.toISOString(),
+          };
+          promessas.push(axios.post('http://localhost:3000/gastos', gastoUnico));
+        }
+
+        await Promise.all(promessas);
+        setMensagem('sucesso:Gasto(s) adicionado(s) com sucesso!');
       }
 
       setDescricao('');
       setValor('');
       setCategoria('');
       setData('');
+      setGastoRecorrente('nao');
+      setIntervaloDias(1);
       setEditando(null);
+      setUsoDataFixa(false);
       carregarGastos();
     } catch (error) {
       console.error('Erro ao salvar gasto:', error);
       setMensagem('Erro ao salvar gasto!');
     } finally {
       setLoading(false);
+      setNumeroRepeticoes(1);
     }
   };
 
@@ -116,13 +183,15 @@ const GastosPage: React.FC = () => {
     setCategoria(gasto.categoria);
     setData(gasto.data.split('T')[0]);
     setEditando(gasto);
+    setGastoRecorrente('nao');
+    setIntervaloDias(1);
+    setUsoDataFixa(false);
   };
 
   const abrirConfirmacaoExclusao = (id: number) => {
     setIdExcluir(id);
     setMostrarConfirmacao(true);
   };
-
 
   const cancelarExclusao = () => {
     setIdExcluir(null);
@@ -150,7 +219,6 @@ const GastosPage: React.FC = () => {
     carregarGastos();
   }, []);
 
-  // useEffect para limpar mensagem após 6 segundos
   useEffect(() => {
     if (mensagem) {
       const timer = setTimeout(() => {
@@ -169,7 +237,7 @@ const GastosPage: React.FC = () => {
           <label>Descrição:</label>
           <input
             type="text"
-            maxLength={15}
+            maxLength={30}
             value={descricao}
             onChange={e => setDescricao(e.target.value)}
             required
@@ -221,10 +289,7 @@ const GastosPage: React.FC = () => {
               {sugestoes.map((sugestao, index) => (
                 <li
                   key={index}
-                  style={{
-                    padding: '0.5rem 1rem',
-                    cursor: 'pointer',
-                  }}
+                  style={{ padding: '0.5rem 1rem', cursor: 'pointer' }}
                   onMouseDown={() => {
                     setCategoria(sugestao);
                     setMostrarSugestoes(false);
@@ -250,6 +315,76 @@ const GastosPage: React.FC = () => {
           />
         </div>
 
+        <div>
+          <label>Gasto recorrente?</label>
+          <select
+            value={gastoRecorrente}
+            onChange={(e) => setGastoRecorrente(e.target.value)}
+          >
+            <option value="nao">Não</option>
+            <option value="sim">Sim</option>
+          </select>
+        </div>
+
+        {gastoRecorrente === 'sim' && (
+          <>
+            <div className="checkbox-container">
+              <input
+                type="checkbox"
+                id="usoDataFixa"
+                checked={usoDataFixa}
+                onChange={() => setUsoDataFixa(!usoDataFixa)}
+              />
+              <label htmlFor="usoDataFixa">Usar datas fixas (ex: todo dia X do mês)</label>
+            </div>
+
+            {!usoDataFixa && (
+              <div>
+                <label className="label-info-wrapper" title="">
+                  Intervalo (em dias):
+                  <span
+                    className="info-icon"
+                    data-tooltip="A cada quantos dias este gasto será repetido."
+                    aria-label="Informação"
+                    tabIndex={0}
+                  >
+                    i
+                  </span>
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  value={intervaloDias}
+                  onChange={(e) => setIntervaloDias(parseInt(e.target.value))}
+                  required
+                />
+              </div>
+            )}
+
+            <div>
+              <label className="label-info-wrapper" title="">
+                Número de repetições:
+                <span
+                  className="info-icon"
+                  data-tooltip="Quantas vezes este gasto será lançado com base no intervalo informado."
+                  aria-label="Informação"
+                  tabIndex={0}
+                >
+                  i
+                </span>
+              </label>
+              <input
+                type="number"
+                min={1}
+                value={numeroRepeticoes}
+                onChange={(e) => setNumeroRepeticoes(parseInt(e.target.value))}
+                required
+              />
+            </div>
+          </>
+        )}
+
+
         <button className="botao-padrao" type="submit" disabled={loading}>
           {loading ? 'Carregando...' : editando ? 'Atualizar Gasto' : 'Adicionar Gasto'}
         </button>
@@ -258,15 +393,16 @@ const GastosPage: React.FC = () => {
       {mensagem && (
         <div
           className={`mensagem ${mensagem.startsWith('exclusao:')
-              ? 'mensagem-exclusao mensagem-destaque'
-              : mensagem.startsWith('sucesso:')
-                ? 'mensagem-sucesso mensagem-destaque'
+            ? 'mensagem-exclusao mensagem-destaque'
+            : mensagem.startsWith('sucesso:')
+              ? 'mensagem-sucesso mensagem-destaque'
+              : mensagem.startsWith('erro:')
+                ? 'mensagem-erro mensagem-destaque'
                 : 'mensagem-erro'
             }`}
         >
-          {mensagem.replace(/^(exclusao:|sucesso:)/, '')}
+          {mensagem.replace(/^(exclusao:|sucesso:|erro:)/, '')}
         </div>
-
       )}
 
       <h2>Lista de Gastos</h2>
@@ -294,7 +430,6 @@ const GastosPage: React.FC = () => {
               <td>{new Date(gasto.data).toLocaleDateString('pt-BR')}</td>
               <td>
                 <button onClick={() => editarGasto(gasto)}>Editar</button>
-                { }
                 <button onClick={() => abrirConfirmacaoExclusao(gasto.id)}>Excluir</button>
               </td>
             </tr>
@@ -310,13 +445,10 @@ const GastosPage: React.FC = () => {
         <button className="botao-sair">Sair</button>
       </Link>
 
-      { }
       {mostrarConfirmacao && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <p className="modal-text">
-              Tem certeza que deseja excluir este gasto?
-            </p>
+            <p className="modal-text">Tem certeza que deseja excluir este gasto?</p>
             <div className="modal-buttons">
               <button onClick={confirmarExclusao} className="modal-button confirmar">
                 Sim
