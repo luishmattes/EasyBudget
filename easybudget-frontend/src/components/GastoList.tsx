@@ -110,7 +110,7 @@ const GastosPage: React.FC = () => {
         </button>
       </form>
 
-      <h2>Lista de Gastos</h2>
+      <h2>Lista de Gastoss</h2>
       <table>
         <thead>
           <tr>

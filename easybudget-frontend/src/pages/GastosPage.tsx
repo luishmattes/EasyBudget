@@ -13,33 +13,18 @@ interface Gasto {
 const GastosPage: React.FC = () => {
   const [gastos, setGastos] = useState<Gasto[]>([]);
   const [descricao, setDescricao] = useState('');
-  const [valor, setValor] = useState(0);
+  const [valor, setValor] = useState('');
   const [categoria, setCategoria] = useState('');
   const [data, setData] = useState('');
   const [editando, setEditando] = useState<Gasto | null>(null);
   const [loading, setLoading] = useState(false);
   const [dataValida, setDataValida] = useState(true);
+  const [mensagem, setMensagem] = useState<string | null>(null);
+  const [sugestoes, setSugestoes] = useState<string[]>([]);
+  const [mostrarSugestoes, setMostrarSugestoes] = useState(false);
+  const [mostrarConfirmacao, setMostrarConfirmacao] = useState(false);
+  const [idExcluir, setIdExcluir] = useState<number | null>(null);
 
-  // Função para validar se a data é válida
-  const validarData = (data: string): boolean => {
-    const dataInput = new Date(data);
-    const dataAtual = new Date();
-
-    // Verifica se a data é válida e não é no futuro
-    return dataInput.getTime() <= dataAtual.getTime() && !isNaN(dataInput.getTime());
-  };
-
-  // Função para formatar o valor, removendo o dígito '0' no início
-  const formatarValor = (valor: string): string => {
-
-    let novoValor = valor.replace(/[^0-9.]/g, '');
-    if (novoValor.startsWith('0') && novoValor.length > 1) {
-      novoValor = novoValor.substring(1);
-    }
-    return novoValor;
-  };
-
-  // Carregar gastos do backend
   const carregarGastos = async () => {
     setLoading(true);
     try {
@@ -53,48 +38,66 @@ const GastosPage: React.FC = () => {
   };
 
   const categoriasExistentes = Array.from(new Set(gastos.map((g) => g.categoria)));
-  const [sugestoes, setSugestoes] = useState<string[]>([]);
-  const [mostrarSugestoes, setMostrarSugestoes] = useState(false);
-  const [mensagem, setMensagem] = useState<string | null>(null);
 
-  // Adicionar ou editar um gasto
+  const handleValorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let val = e.target.value;
+    val = val.replace(/[^0-9,\.]/g, '');
+    const partes = val.split(/[,.]/);
+    if (partes.length > 2) return;
+    setValor(val);
+  };
+
+  const validarData = (data: string): boolean => {
+    const dataInput = new Date(data);
+    return !isNaN(dataInput.getTime()) && dataInput <= new Date();
+  };
+
+  const handleCategoriaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target.value;
+    setCategoria(input);
+
+    if (input.length > 0) {
+      const filtradas = categoriasExistentes.filter((cat) =>
+        cat.toLowerCase().includes(input.toLowerCase())
+      );
+      setSugestoes(filtradas);
+      setMostrarSugestoes(filtradas.length > 0);
+    } else {
+      setSugestoes(categoriasExistentes);
+      setMostrarSugestoes(true);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // Validação do valor
-    if (valor <= 0) {
+    const valorNumerico = parseFloat(valor.replace(',', '.'));
+
+    if (isNaN(valorNumerico) || valorNumerico <= 0) {
       setMensagem('O valor do gasto deve ser maior que zero!');
-      setTimeout(() => setMensagem(null), 3000);
       return;
     }
 
-    // Validação da data
-    const validarData = (data: string): boolean => {
-      const dataInput = new Date(data);
-      return !isNaN(dataInput.getTime());
-    };
     if (!validarData(data)) {
       setDataValida(false);
       setMensagem('Data inválida! Por favor, insira uma data válida.');
-      setTimeout(() => setMensagem(null), 3000);
       return;
-    };
+    }
 
-    const gasto = { descricao, valor, categoria, data: new Date(data + 'T12:00:00').toISOString() };
+    const gasto = { descricao, valor: valorNumerico, categoria, data: new Date(data + 'T12:00:00').toISOString() };
     setLoading(true);
+
     try {
       if (editando) {
-        // Editar
         await axios.put(`http://localhost:3000/gastos/${editando.id}`, gasto);
-        setMensagem('Gasto editado com sucesso!');
+        setMensagem('sucesso:Gasto editado com sucesso!');
       } else {
-        // Criar
         await axios.post('http://localhost:3000/gastos', gasto);
-        setMensagem('Gasto adicionado com sucesso!');
+        setMensagem('sucesso:Gasto adicionado com sucesso!');
       }
-      // Limpar campos e recarregar os gastos
+
       setDescricao('');
-      setValor(0);
+      setValor('');
       setCategoria('');
       setData('');
       setEditando(null);
@@ -104,33 +107,42 @@ const GastosPage: React.FC = () => {
       setMensagem('Erro ao salvar gasto!');
     } finally {
       setLoading(false);
-      setTimeout(() => setMensagem(null), 3000);
     }
   };
 
-  // Editar gasto
   const editarGasto = (gasto: Gasto) => {
     setDescricao(gasto.descricao);
-    setValor(gasto.valor);
+    setValor(gasto.valor.toString());
     setCategoria(gasto.categoria);
     setData(gasto.data.split('T')[0]);
     setEditando(gasto);
   };
 
-  // Excluir gasto
-  const excluirGasto = async (id: number) => {
-    if (window.confirm('Tem certeza que deseja excluir este gasto?')) {
-      setLoading(true);
-      try {
-        await axios.delete(`http://localhost:3000/gastos/${id}`);
-        alert('Gasto excluído com sucesso!');
-        carregarGastos();
-      } catch (error) {
-        console.error('Erro ao excluir gasto:', error);
-        alert('Erro ao excluir gasto!');
-      } finally {
-        setLoading(false);
-      }
+  const abrirConfirmacaoExclusao = (id: number) => {
+    setIdExcluir(id);
+    setMostrarConfirmacao(true);
+  };
+
+
+  const cancelarExclusao = () => {
+    setIdExcluir(null);
+    setMostrarConfirmacao(false);
+  };
+
+  const confirmarExclusao = async () => {
+    if (idExcluir === null) return;
+    setLoading(true);
+    setMostrarConfirmacao(false);
+    try {
+      await axios.delete(`http://localhost:3000/gastos/${idExcluir}`);
+      setMensagem('exclusao:Gasto excluído com sucesso!');
+      carregarGastos();
+    } catch (error) {
+      console.error('Erro ao excluir gasto:', error);
+      setMensagem('Erro ao excluir gasto!');
+    } finally {
+      setLoading(false);
+      setIdExcluir(null);
     }
   };
 
@@ -138,170 +150,185 @@ const GastosPage: React.FC = () => {
     carregarGastos();
   }, []);
 
+  // useEffect para limpar mensagem após 6 segundos
+  useEffect(() => {
+    if (mensagem) {
+      const timer = setTimeout(() => {
+        setMensagem(null);
+      }, 6000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [mensagem]);
+
   return (
-    <>
-      <div className="container">
-        <h1>Gestão de Gastos</h1>
-        <form onSubmit={handleSubmit}>
-          <div>
-            <label>Descrição:</label>
-            <input
-              type="text"
-              value={descricao}
-              onChange={(e) => setDescricao(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <label>Valor:</label>
-            <input
-              type="text"
-              maxLength={15} // Limita a digitação
-              value={valor === 0 ? '' : valor}
-              onChange={(e) => {
-                const novoValor = formatarValor(e.target.value);
-                setValor(novoValor ? parseFloat(novoValor) : 0);
+    <div className="container">
+      <h1>Gestão de Gastos</h1>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>Descrição:</label>
+          <input
+            type="text"
+            maxLength={15}
+            value={descricao}
+            onChange={e => setDescricao(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label>Valor:</label>
+          <input
+            type="text"
+            maxLength={15}
+            value={valor}
+            onChange={handleValorChange}
+            required
+          />
+        </div>
+        <div style={{ position: 'relative' }}>
+          <label>Categoria:</label>
+          <input
+            type="text"
+            value={categoria}
+            onChange={handleCategoriaChange}
+            onFocus={() => {
+              const filtradas = categoriasExistentes;
+              setSugestoes(filtradas);
+              setMostrarSugestoes(filtradas.length > 0);
+            }}
+            onBlur={() => setTimeout(() => setMostrarSugestoes(false), 100)}
+            required
+          />
+          {mostrarSugestoes && (
+            <ul
+              style={{
+                position: 'absolute',
+                top: '100%',
+                left: 0,
+                width: '100%',
+                maxHeight: '150px',
+                overflowY: 'auto',
+                backgroundColor: 'white',
+                border: '1px solid #ccc',
+                borderRadius: '5px',
+                zIndex: 999,
+                color: '#000',
+                listStyle: 'none',
+                padding: '0.5rem 0',
+                margin: 0,
               }}
-              required
-            />
-          </div>
-          <div style={{ position: 'relative' }}>
-            <label>Categoria:</label>
-            <input
-              type="text"
-              value={categoria}
-              onChange={(e) => {
-                const input = e.target.value;
-                setCategoria(input);
-                if (input.length > 0) {
-                  const filtradas = categoriasExistentes.filter((cat) =>
-                    cat.toLowerCase().includes(input.toLowerCase())
-                  );
-                  setSugestoes(filtradas);
-                  setMostrarSugestoes(filtradas.length > 0);
-                } else {
-                  setMostrarSugestoes(false);
-                }
-              }}
-              onFocus={() => {
-                setMostrarSugestoes(true);
-              }}
-              onBlur={() => {
-                setTimeout(() => setMostrarSugestoes(false), 100); // Espera clique em sugestão
-              }}
-              required
-            />
-
-            {mostrarSugestoes && (
-              <ul
-                style={{
-                  position: 'absolute',
-                  top: '100%',
-                  left: 0,
-                  width: '100%',
-                  maxHeight: '150px',
-                  overflowY: 'auto',
-                  backgroundColor: 'white',
-                  border: '1px solid #ccc',
-                  borderRadius: '5px',
-                  zIndex: 999,
-                  color: '#000',
-                  listStyle: 'none',
-                  padding: '0.5rem 0',
-                  margin: 0,
-                }}
-              >
-                {sugestoes.map((sugestao, index) => (
-                  <li
-                    key={index}
-                    style={{
-                      padding: '0.5rem 1rem',
-                      cursor: 'pointer',
-                    }}
-                    onMouseDown={() => {
-                      setCategoria(sugestao);
-                      setMostrarSugestoes(false);
-                    }}
-                  >
-                    {sugestao}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          <div>
-            <label>Data:</label>
-            <input
-              type="date"
-              value={data}
-              onChange={(e) => {
-                setData(e.target.value);
-                setDataValida(!isNaN(new Date(e.target.value).getTime()));
-              }}
-              required
-            />
-            {!dataValida && <p style={{ color: 'red' }}>Data inválida! Por favor, insira uma data válida.</p>}
-          </div>
-          <button type="submit" disabled={loading}>
-            {loading ? 'Carregando...' : editando ? 'Atualizar Gasto' : 'Adicionar Gasto'}
-          </button>
-          {mensagem && (
-            <div style={{
-              background: '#0D8E00',
-              color: '#fff',
-              padding: '10px 20px',
-              borderRadius: '8px',
-              marginBottom: '1rem',
-              textAlign: 'center',
-              transition: 'opacity 0.3s'
-            }}>
-              {mensagem}
-            </div>
+            >
+              {sugestoes.map((sugestao, index) => (
+                <li
+                  key={index}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    cursor: 'pointer',
+                  }}
+                  onMouseDown={() => {
+                    setCategoria(sugestao);
+                    setMostrarSugestoes(false);
+                  }}
+                >
+                  {sugestao}
+                </li>
+              ))}
+            </ul>
           )}
-        </form>
+        </div>
 
-        <h2>Lista de Gastos</h2>
-        {loading && <p>Carregando os dados...</p>}
-        <table>
-          <thead>
-            <tr>
-              <th>Descrição</th>
-              <th>Valor</th>
-              <th>Categoria</th>
-              <th>Data</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {gastos.map((gasto) => (
-              <tr key={gasto.id}>
-                <td style={{ maxWidth: '200px', wordBreak: 'break-word', whiteSpace: 'normal' }}>
-                  {gasto.descricao}
-                </td>
-                <td>R$ {gasto.valor.toFixed(2)}</td>
-                <td style={{ maxWidth: '150px', wordBreak: 'break-word', whiteSpace: 'normal' }}>
-                  {gasto.categoria}
-                </td>
-                <td>{new Date(gasto.data).toLocaleDateString('pt-BR')}</td>
-                <td>
-                  <button onClick={() => editarGasto(gasto)}>Editar</button>
-                  <button onClick={() => excluirGasto(gasto.id)}>Excluir</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <Link to="/estatisticas" className="botao-estatisticas">
-        <button>Estatísticas</button>
-      </Link>
-      <Link to="/" className="botao-sair">
-        <button>
-          Sair
+        <div>
+          <label>Data:</label>
+          <input
+            type="date"
+            value={data}
+            onChange={(e) => {
+              setData(e.target.value);
+              setDataValida(!isNaN(new Date(e.target.value).getTime()));
+            }}
+            required
+          />
+        </div>
+
+        <button className="botao-padrao" type="submit" disabled={loading}>
+          {loading ? 'Carregando...' : editando ? 'Atualizar Gasto' : 'Adicionar Gasto'}
         </button>
+      </form>
+
+      {mensagem && (
+        <div
+          className={`mensagem ${mensagem.startsWith('exclusao:')
+              ? 'mensagem-exclusao mensagem-destaque'
+              : mensagem.startsWith('sucesso:')
+                ? 'mensagem-sucesso mensagem-destaque'
+                : 'mensagem-erro'
+            }`}
+        >
+          {mensagem.replace(/^(exclusao:|sucesso:)/, '')}
+        </div>
+
+      )}
+
+      <h2>Lista de Gastos</h2>
+      {loading && <p>Carregando os dados...</p>}
+      <table>
+        <thead>
+          <tr>
+            <th>Descrição</th>
+            <th>Valor</th>
+            <th>Categoria</th>
+            <th>Data</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {gastos.map((gasto) => (
+            <tr key={gasto.id}>
+              <td style={{ maxWidth: '200px', wordBreak: 'break-word', whiteSpace: 'normal' }}>
+                {gasto.descricao}
+              </td>
+              <td>R$ {gasto.valor.toFixed(2)}</td>
+              <td style={{ maxWidth: '150px', wordBreak: 'break-word', whiteSpace: 'normal' }}>
+                {gasto.categoria}
+              </td>
+              <td>{new Date(gasto.data).toLocaleDateString('pt-BR')}</td>
+              <td>
+                <button onClick={() => editarGasto(gasto)}>Editar</button>
+                { }
+                <button onClick={() => abrirConfirmacaoExclusao(gasto.id)}>Excluir</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <Link to="/estatisticas">
+        <button className="botao-estatisticas">Estatísticas</button>
       </Link>
-    </>
+
+      <Link to="/">
+        <button className="botao-sair">Sair</button>
+      </Link>
+
+      { }
+      {mostrarConfirmacao && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <p className="modal-text">
+              Tem certeza que deseja excluir este gasto?
+            </p>
+            <div className="modal-buttons">
+              <button onClick={confirmarExclusao} className="modal-button confirmar">
+                Sim
+              </button>
+              <button onClick={cancelarExclusao} className="modal-button cancelar">
+                Não
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 

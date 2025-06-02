@@ -9,7 +9,7 @@
   --azul-suave: hsl(211, 68%, 86%);
   --azul-gradient-start: #001f3d;
   --azul-gradient-end: #003b5c;
-  --green: #0b7947;
+  --green: #00ff22;
   --red: #860802;
   --grey: #747373dd;
 }
@@ -157,6 +157,109 @@ tr:hover {
   background-color: var(--azul-suave);
 }
 
+/* Modal de Confirmação */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: var(--branco);
+  color: var(--azul-escuro);
+  padding: 2rem;
+  border-radius: 20px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+.modal-text {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: var(--azul-gradient-start);
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-around;
+  gap: 1rem;
+}
+
+.modal-button {
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  color: var(--branco);
+}
+
+.modal-button.confirmar {
+  background-color: var(--red);
+}
+
+.modal-button.confirmar:hover {
+  background-color: #a20707;
+}
+
+.modal-button.cancelar {
+  background-color: var(--grey);
+}
+
+.modal-button.cancelar:hover {
+  background-color: #5a5a5a;
+}
+
+.mensagem {
+  padding: 10px 20px;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  text-align: center;
+  transition: opacity 0.3s;
+  font-weight: 600;
+}
+
+.mensagem-sucesso {
+  background-color: var(--azul-suave);
+  color: var(--green);
+}
+
+.mensagem-erro {
+  background-color: var(--red);
+  color: var(--branco);
+}
+
+.mensagem-exclusao {
+  background-color: var(--red);
+  color: var(--branco);
+}
+
+.mensagem-destaque {
+  position: fixed;
+  top: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2000;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+  max-width: 90%;
+  width: fit-content;
+  font-size: 1.1rem;
+}
+
+
+
 /* Página Home */
 .home-container {
   display: flex;
@@ -231,32 +334,25 @@ tr:hover {
 .home-button:hover {
   background-color: var(--azul-escuro);
 }
-
 .botao-estatisticas {
   position: fixed;
-  top: 1.5rem;
-  right: 1.5rem;
+  top: 1rem;
+  right: 1rem;
   z-index: 999;
-}
-
-.botao-estatisticas button {
+  
   background-color: var(--green);
   color: var(--branco);
-  text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
   padding: 0.6rem 1.2rem;
   border: none;
-  border-radius: 20px;
+  border-radius: 10px;
   font-size: 0.95rem;
-  font-weight: bold;
+  width: auto;
+  height: auto;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   transition: background-color 0.3s ease;
 }
 
-.botao-estatisticas button:hover {
+.botao-estatisticas:hover {
   background-color: var(--azul-medio);
 }
 
@@ -266,31 +362,23 @@ tr:hover {
   bottom: 1.5rem;
   left: 1.5rem;
   z-index: 999;
-}
 
-.botao-sair button {
   background-color: var(--branco);
-  color: var(--azul-gradient-start);
+  color: var(--red);
   text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
   padding: 0.6rem 1.2rem;
   border: none;
   border-radius: 20px;
-  font-size: 0.95rem;
-  font-weight: bold;
+  width: auto;
+  height: auto;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   transition: background-color 0.3s ease;
 }
 
-/* botão de sair */
-.botao-sair button:hover {
+.botao-sair:hover {
   background-color: var(--red);
+  color: var(--branco);
 }
-
-
 
 /* --- RESPONSIVIDADE --- */
 
