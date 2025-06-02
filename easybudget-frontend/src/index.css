@@ -375,6 +375,33 @@ input[type="number"]:focus {
   outline: none;
 }
 
+.filtro-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0;
+  background-color: #f9f9f9;
+  padding: 12px 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  flex-wrap: wrap;
+}
+
+.filtro-label {
+  font-weight: bold;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.filtro-input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  outline-color: #4CAF50;
+  min-width: 200px;
+}
 
 
 /* Página Home */

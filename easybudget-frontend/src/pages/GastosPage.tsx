@@ -28,6 +28,10 @@ const GastosPage: React.FC = () => {
   const [idExcluir, setIdExcluir] = useState<number | null>(null);
   const [numeroRepeticoes, setNumeroRepeticoes] = useState(1);
   const [usoDataFixa, setUsoDataFixa] = useState(false);
+  const [filtroCategoria, setFiltroCategoria] = useState('');
+  const [ordemCampo, setOrdemCampo] = useState<'descricao' | 'valor' | 'categoria' | 'data'>('data');
+  const [ordemAscendente, setOrdemAscendente] = useState(true);
+
 
   const carregarGastos = async () => {
     setLoading(true);
@@ -55,6 +59,39 @@ const GastosPage: React.FC = () => {
     const dataInput = new Date(data);
     return !isNaN(dataInput.getTime());
   };
+
+  const ordenarPor = (campo: 'descricao' | 'valor' | 'categoria' | 'data') => {
+    if (ordemCampo === campo) {
+      setOrdemAscendente(!ordemAscendente);
+    } else {
+      setOrdemCampo(campo);
+      setOrdemAscendente(true);
+    }
+  };
+
+  const gastosFiltradosOrdenados = [...gastos]
+    .filter((g) => g.categoria.toLowerCase().includes(filtroCategoria.toLowerCase()))
+    .sort((a, b) => {
+      const valorA = a[ordemCampo];
+      const valorB = b[ordemCampo];
+
+      if (ordemCampo === 'valor') {
+        return ordemAscendente
+          ? (valorA as number) - (valorB as number)
+          : (valorB as number) - (valorA as number);
+      }
+
+      if (ordemCampo === 'data') {
+        return ordemAscendente
+          ? new Date(valorA as string).getTime() - new Date(valorB as string).getTime()
+          : new Date(valorB as string).getTime() - new Date(valorA as string).getTime();
+      }
+
+      // Para strings: descricao ou categoria
+      return ordemAscendente
+        ? (valorA as string).localeCompare(valorB as string)
+        : (valorB as string).localeCompare(valorA as string);
+    });
 
   const handleCategoriaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const input = e.target.value;
@@ -406,27 +443,43 @@ const GastosPage: React.FC = () => {
       )}
 
       <h2>Lista de Gastos</h2>
+      <div className="filtro-container">
+        <label htmlFor="filtroCategoria" className="filtro-label">🔍 Filtrar por categoria:</label>
+        <input
+          id="filtroCategoria"
+          type="text"
+          placeholder="Digite uma categoria..."
+          value={filtroCategoria}
+          onChange={(e) => setFiltroCategoria(e.target.value)}
+          className="filtro-input"
+        />
+      </div>
+
       {loading && <p>Carregando os dados...</p>}
       <table>
         <thead>
           <tr>
-            <th>Descrição</th>
-            <th>Valor</th>
-            <th>Categoria</th>
-            <th>Data</th>
+            <th onClick={() => ordenarPor('descricao')} style={{ cursor: 'pointer' }}>
+              Descrição {ordemCampo === 'descricao' && (ordemAscendente ? '↑' : '↓')}
+            </th>
+            <th onClick={() => ordenarPor('valor')} style={{ cursor: 'pointer' }}>
+              Valor {ordemCampo === 'valor' && (ordemAscendente ? '↑' : '↓')}
+            </th>
+            <th onClick={() => ordenarPor('categoria')} style={{ cursor: 'pointer' }}>
+              Categoria {ordemCampo === 'categoria' && (ordemAscendente ? '↑' : '↓')}
+            </th>
+            <th onClick={() => ordenarPor('data')} style={{ cursor: 'pointer' }}>
+              Data {ordemCampo === 'data' && (ordemAscendente ? '↑' : '↓')}
+            </th>
             <th>Ações</th>
           </tr>
         </thead>
         <tbody>
-          {gastos.map((gasto) => (
+          {gastosFiltradosOrdenados.map((gasto) => (
             <tr key={gasto.id}>
-              <td style={{ maxWidth: '200px', wordBreak: 'break-word', whiteSpace: 'normal' }}>
-                {gasto.descricao}
-              </td>
+              <td>{gasto.descricao}</td>
               <td>R$ {gasto.valor.toFixed(2)}</td>
-              <td style={{ maxWidth: '150px', wordBreak: 'break-word', whiteSpace: 'normal' }}>
-                {gasto.categoria}
-              </td>
+              <td>{gasto.categoria}</td>
               <td>{new Date(gasto.data).toLocaleDateString('pt-BR')}</td>
               <td>
                 <button onClick={() => editarGasto(gasto)}>Editar</button>
