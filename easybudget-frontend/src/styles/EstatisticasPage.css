@@ -1,0 +1,530 @@
+/* ================== Fontes ================== */
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;600;700&display=swap');
+
+/* ================== Paleta de Cores ================== */
+:root {
+  --azul-escuro: #2d0354;
+  --azul-medio: #005f8d;
+  --azul-claro: #a1c9f1;
+  --azul-suave: hsl(211, 68%, 86%);
+  --azul-gradient-start: #001f3d;
+  --azul-gradient-end: #003b5c;
+
+  --verde1: #01ad18;
+  --verde2: #32ee4b;
+
+  --vermelho: #860802;
+  --cinza: #b6b6b6dd;
+  --branco: #ffffff;
+}
+
+/* ================== Reset ================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Roboto Slab', serif;
+  background: linear-gradient(180deg, var(--azul-gradient-start), var(--azul-escuro));
+  color: var(--branco);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2rem;
+}
+
+/* ================== Componentes Gerais ================== */
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+button:hover {
+  transform: scale(1.03);
+}
+
+input, select {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+/* ================== Container Principal ================== */
+.estatisticas-container {
+  background-color: var(--branco);
+  color: var(--azul-escuro);
+  border-radius: 2rem;
+  padding: 2rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  max-width: 1400px;
+  display: flex;
+  flex-direction: column;
+}
+
+.estatisticas-title {
+  font-size: 2.5rem;
+  text-align: center;
+  font-weight: 700;
+  color: var(--azul-escuro);
+  text-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* ================== Filtros ================== */
+.filtros-container {
+  background-color: var(--branco);
+  border: 1px solid #d1d5db;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.filtros-container label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 600;
+  color: var(--azul-escuro);
+  font-size: 0.95rem;
+  min-width: 180px;
+}
+
+.filtros-container input[type="date"],
+.filtros-container select {
+  padding: 10px 14px;
+  border-radius: 0.75rem;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+  font-size: 1rem;
+  transition: all 0.3s;
+}
+
+.filtros-container input[type="date"]:focus,
+.filtros-container select:focus {
+  outline: none;
+  border-color: var(--azul-medio);
+  box-shadow: 0 0 0 3px rgba(0, 95, 141, 0.2);
+  background-color: #fff;
+}
+
+.filtros-container button {
+  background-color: var(--azul-medio);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.filtros-container button:hover {
+  background-color: #004a6c;
+  transform: translateY(-2px);
+}
+
+.filtros-container button:active {
+  transform: translateY(0);
+}
+ 
+/* ================== Grid dos Cards ================== */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 2rem;
+}
+
+.chart-card {
+  background-color: var(--cinza);
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* ================== Dropdown de Categorias ================== */
+.categoria-dropdown {
+  position: relative;
+  width: 220px;
+  min-width: 220px;
+}
+
+.categoria-header {
+  background-color: var(--azul-medio);
+  color: var(--branco);
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+  font-weight: 600;
+}
+
+
+.categoria-header:hover {
+  transform: scale(1.03);
+}
+
+.categoria-itens {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  background-color: var(--branco);
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 10px;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  max-height: 220px;
+  overflow-y: auto;
+  width: 100%;
+}
+
+.categoria-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.categoria-item:hover {
+  background-color: #f3f4f6;
+}
+
+.categoria-vazia {
+  color: #666;
+  font-style: italic;
+}
+
+.categoria-acoes {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  justify-content: space-between;
+}
+
+.botao-acao {
+  background-color: var(--azul-medio);
+  color: var(--branco);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.botao-acao:hover {
+  background-color: #004a70;
+}
+
+/* ================== Checkbox ================== */
+.checkbox-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #f4f4f4;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* ================== Tabela ================== */
+.estatisticas-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.estatisticas-table th,
+.estatisticas-table td {
+  padding: 1rem;
+  border-bottom: 2px solid var(--azul-suave);
+  text-align: center;
+}
+
+.estatisticas-table th {
+  background-color: var(--azul-escuro);
+  color: var(--branco);
+  font-size: 1.1rem;
+  text-transform: uppercase;
+}
+
+.estatisticas-table td {
+  background-color: var(--branco);
+  color: var(--azul-escuro);
+  font-weight: 700;
+}
+
+/* ================== Mensagens ================== */
+.loading,
+.error-message {
+  text-align: center;
+  font-weight: 700;
+  padding: 1rem;
+}
+
+.loading {
+  color: var(--azul-medio);
+}
+
+.error-message {
+  color: var(--vermelho);
+}
+
+/* ================== Botões Gerais ================== */
+.botao-voltar {
+  background-color: var(--azul-gradient-start);
+  color: var(--branco);
+  font-weight: 700;
+  border-radius: 0.75rem;
+  padding: 0.8rem 1.5rem;
+}
+
+.botao-voltar:hover {
+  background-color: var(--azul-suave);
+}
+
+.link-voltar {
+  display: flex;
+  justify-content: center;
+  text-decoration: none;
+}
+/* ================== dash ================== */
+.expandir-btn {
+  background-color: transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.expandir-btn:hover {
+  background-color: var(--verde1);
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  max-width: 90%;
+  max-height: 90%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.modal-body {
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.modal-table {
+  border-collapse: collapse;
+  width: 400px;
+}
+
+.modal-table th,
+.modal-table td {
+  border: 1px solid #ccc;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.modal-table th {
+  background-color: #003b5c;
+  color: white;
+}
+
+.fechar-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--vermelho);
+  align-self: flex-end;
+  cursor: pointer;
+}
+
+.fechar-btn:hover {
+  background: var(--vermelho);
+  font-size: 1.5rem;
+  color: var(--branco);
+}
+
+/* ================== Feedback ================== */
+.feedback-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.8);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-spinner {
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid #003b5c;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #f44336;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  box-shadow: 0px 0px 10px rgba(0,0,0,0.3);
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.error-toast button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+/* ================== Responsividade ================== */
+@media (max-width: 480px) {
+  body {
+    padding: 1rem;
+  }
+
+  .estatisticas-container {
+    width: 100%;
+    padding: 1rem;
+  }
+
+  .filtros-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .categoria-dropdown {
+  position: relative;
+  min-width: 220px;
+}
+
+.categoria-header {
+  background-color: var(--azul-medio);
+  color: white;
+  padding: 10px 14px;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+  font-weight: 600;
+  transition: background-color 0.3s;
+}
+
+.categoria-header:hover {
+  background-color: #004a6c;
+}
+
+.categoria-itens {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 0.75rem;
+  padding: 10px;
+  z-index: 10;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  max-height: 240px;
+  overflow-y: auto;
+  width: 100%;
+}
+
+.categoria-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+
+.categoria-item:hover {
+  background-color: #f3f4f6;
+}
+
+.categoria-vazia {
+  color: #888;
+  font-style: italic;
+  padding: 6px;
+  text-align: center;
+}
+
+}

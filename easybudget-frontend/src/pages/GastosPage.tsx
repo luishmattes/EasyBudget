@@ -13,33 +13,26 @@ interface Gasto {
 const GastosPage: React.FC = () => {
   const [gastos, setGastos] = useState<Gasto[]>([]);
   const [descricao, setDescricao] = useState('');
-  const [valor, setValor] = useState(0);
+  const [valor, setValor] = useState('');
   const [categoria, setCategoria] = useState('');
   const [data, setData] = useState('');
+  const [gastoRecorrente, setGastoRecorrente] = useState('nao');
+  const [intervaloDias, setIntervaloDias] = useState(1);
   const [editando, setEditando] = useState<Gasto | null>(null);
   const [loading, setLoading] = useState(false);
-  const [dataValida, setDataValida] = useState(true); // Estado para verificar a validade da data
+  const [dataValida, setDataValida] = useState(true);
+  const [mensagem, setMensagem] = useState<string | null>(null);
+  const [sugestoes, setSugestoes] = useState<string[]>([]);
+  const [mostrarSugestoes, setMostrarSugestoes] = useState(false);
+  const [mostrarConfirmacao, setMostrarConfirmacao] = useState(false);
+  const [idExcluir, setIdExcluir] = useState<number | null>(null);
+  const [numeroRepeticoes, setNumeroRepeticoes] = useState(1);
+  const [usoDataFixa, setUsoDataFixa] = useState(false);
+  const [filtroCategoria, setFiltroCategoria] = useState('');
+  const [ordemCampo, setOrdemCampo] = useState<'descricao' | 'valor' | 'categoria' | 'data'>('data');
+  const [ordemAscendente, setOrdemAscendente] = useState(true);
 
-  // Função para validar se a data é válida
-  const validarData = (data: string): boolean => {
-    const dataInput = new Date(data);
-    const dataAtual = new Date();
 
-    // Verifica se a data é válida e não é no futuro
-    return dataInput.getTime() <= dataAtual.getTime() && !isNaN(dataInput.getTime());
-  };
-
-  // Função para formatar o valor, removendo o dígito '0' no início
-  const formatarValor = (valor: string): string => {
-    // Remove caracteres não numéricos e garanta que o valor seja maior que 0
-    let novoValor = valor.replace(/[^0-9.]/g, '');
-    if (novoValor.startsWith('0') && novoValor.length > 1) {
-      novoValor = novoValor.substring(1); // Remove o zero à esquerda
-    }
-    return novoValor;
-  };
-
-  // Carregar gastos do backend
   const carregarGastos = async () => {
     setLoading(true);
     try {
@@ -53,75 +46,209 @@ const GastosPage: React.FC = () => {
   };
 
   const categoriasExistentes = Array.from(new Set(gastos.map((g) => g.categoria)));
-  const [sugestoes, setSugestoes] = useState<string[]>([]);
-  const [mostrarSugestoes, setMostrarSugestoes] = useState(false);
 
-  // Adicionar ou editar um gasto
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleValorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let val = e.target.value;
+    val = val.replace(/[^0-9,\.]/g, '');
+    const partes = val.split(/[,.]/);
+    if (partes.length > 2) return;
+    setValor(val);
+  };
+
+  const validarData = (data: string): boolean => {
+    const dataInput = new Date(data);
+    return !isNaN(dataInput.getTime());
+  };
+
+  const ordenarPor = (campo: 'descricao' | 'valor' | 'categoria' | 'data') => {
+    if (ordemCampo === campo) {
+      setOrdemAscendente(!ordemAscendente);
+    } else {
+      setOrdemCampo(campo);
+      setOrdemAscendente(true);
+    }
+  };
+
+  const gastosFiltradosOrdenados = [...gastos]
+    .filter((g) => g.categoria.toLowerCase().includes(filtroCategoria.toLowerCase()))
+    .sort((a, b) => {
+      const valorA = a[ordemCampo];
+      const valorB = b[ordemCampo];
+
+      if (ordemCampo === 'valor') {
+        return ordemAscendente
+          ? (valorA as number) - (valorB as number)
+          : (valorB as number) - (valorA as number);
+      }
+
+      if (ordemCampo === 'data') {
+        return ordemAscendente
+          ? new Date(valorA as string).getTime() - new Date(valorB as string).getTime()
+          : new Date(valorB as string).getTime() - new Date(valorA as string).getTime();
+      }
+
+      // Para strings: descricao ou categoria
+      return ordemAscendente
+        ? (valorA as string).localeCompare(valorB as string)
+        : (valorB as string).localeCompare(valorA as string);
+    });
+
+  const handleCategoriaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target.value;
+    setCategoria(input);
+
+    if (input.length > 0) {
+      const filtradas = categoriasExistentes.filter((cat) =>
+        cat.toLowerCase().includes(input.toLowerCase())
+      );
+      setSugestoes(filtradas);
+      setMostrarSugestoes(filtradas.length > 0);
+    } else {
+      setSugestoes(categoriasExistentes);
+      setMostrarSugestoes(true);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // Validação de data
-    if (!validarData(data)) {
-      setDataValida(false);
-      return; // Se a data não for válida, impede o envio do formulário
-    }
+    const valorNumerico = parseFloat(valor.replace(',', '.'));
 
-    // Validação do valor
-    if (valor <= 0) {
-      alert('O valor do gasto deve ser maior que zero!');
+    if (isNaN(valorNumerico) || valorNumerico <= 0) {
+      setMensagem('O valor do gasto deve ser maior que zero!');
       return;
     }
 
-    const gasto = { descricao, valor, categoria, data: new Date(data + 'T12:00:00').toISOString() };
+    if (!validarData(data)) {
+      setDataValida(false);
+      setMensagem('erro:Data inválida! Por favor, insira uma data válida.');
+      return;
+    }
+
     setLoading(true);
+    const dataInicial = new Date(data + 'T12:00:00');
+
     try {
       if (editando) {
-        // Editar
-        await axios.put(`http://localhost:3000/gastos/${editando.id}`, gasto);
-        alert('Gasto editado com sucesso!');
+        const gastoAtualizado = {
+          descricao,
+          valor: valorNumerico,
+          categoria,
+          data: dataInicial.toISOString(),
+        };
+        await axios.put(`http://localhost:3000/gastos/${editando.id}`, gastoAtualizado);
+        setMensagem('sucesso:Gasto editado com sucesso!');
       } else {
-        // Criar
-        await axios.post('http://localhost:3000/gastos', gasto);
-        alert('Gasto adicionado com sucesso!');
+        const promessas = [];
+
+        if (gastoRecorrente === 'sim') {
+          if (usoDataFixa) {
+            const diaOriginal = dataInicial.getDate();
+
+            for (let i = 0; i < numeroRepeticoes; i++) {
+              const novaData = new Date(dataInicial);
+              const novoMes = novaData.getMonth() + i;
+
+              novaData.setMonth(novoMes);
+
+              const ultimoDiaMes = new Date(novaData.getFullYear(), novaData.getMonth() + 1, 0).getDate();
+
+              if (diaOriginal > ultimoDiaMes) {
+                novaData.setDate(ultimoDiaMes);
+              } else {
+                novaData.setDate(diaOriginal);
+              }
+
+              const novoGasto = {
+                descricao,
+                valor: valorNumerico,
+                categoria,
+                data: novaData.toISOString(),
+              };
+
+              promessas.push(axios.post('http://localhost:3000/gastos', novoGasto));
+            }
+          }
+          else {
+            for (let i = 0; i < numeroRepeticoes; i++) {
+              const novaData = new Date(dataInicial);
+              novaData.setDate(novaData.getDate() + i * intervaloDias);
+              const novoGasto = {
+                descricao,
+                valor: valorNumerico,
+                categoria,
+                data: novaData.toISOString(),
+              };
+              promessas.push(axios.post('http://localhost:3000/gastos', novoGasto));
+            }
+          }
+        } else {
+          const gastoUnico = {
+            descricao,
+            valor: valorNumerico,
+            categoria,
+            data: dataInicial.toISOString(),
+          };
+          promessas.push(axios.post('http://localhost:3000/gastos', gastoUnico));
+        }
+
+        await Promise.all(promessas);
+        setMensagem('sucesso:Gasto(s) adicionado(s) com sucesso!');
       }
-      // Limpar campos e recarregar os gastos
+
       setDescricao('');
-      setValor(0);
+      setValor('');
       setCategoria('');
       setData('');
+      setGastoRecorrente('nao');
+      setIntervaloDias(1);
       setEditando(null);
+      setUsoDataFixa(false);
       carregarGastos();
     } catch (error) {
       console.error('Erro ao salvar gasto:', error);
-      alert('Erro ao salvar gasto!');
+      setMensagem('Erro ao salvar gasto!');
     } finally {
       setLoading(false);
+      setNumeroRepeticoes(1);
     }
   };
 
-  // Editar gasto
   const editarGasto = (gasto: Gasto) => {
     setDescricao(gasto.descricao);
-    setValor(gasto.valor);
+    setValor(gasto.valor.toString());
     setCategoria(gasto.categoria);
     setData(gasto.data.split('T')[0]);
     setEditando(gasto);
+    setGastoRecorrente('nao');
+    setIntervaloDias(1);
+    setUsoDataFixa(false);
   };
 
-  // Excluir gasto
-  const excluirGasto = async (id: number) => {
-    if (window.confirm('Tem certeza que deseja excluir este gasto?')) {
-      setLoading(true);
-      try {
-        await axios.delete(`http://localhost:3000/gastos/${id}`);
-        alert('Gasto excluído com sucesso!');
-        carregarGastos();
-      } catch (error) {
-        console.error('Erro ao excluir gasto:', error);
-        alert('Erro ao excluir gasto!');
-      } finally {
-        setLoading(false);
-      }
+  const abrirConfirmacaoExclusao = (id: number) => {
+    setIdExcluir(id);
+    setMostrarConfirmacao(true);
+  };
+
+  const cancelarExclusao = () => {
+    setIdExcluir(null);
+    setMostrarConfirmacao(false);
+  };
+
+  const confirmarExclusao = async () => {
+    if (idExcluir === null) return;
+    setLoading(true);
+    setMostrarConfirmacao(false);
+    try {
+      await axios.delete(`http://localhost:3000/gastos/${idExcluir}`);
+      setMensagem('exclusao:Gasto excluído com sucesso!');
+      carregarGastos();
+    } catch (error) {
+      console.error('Erro ao excluir gasto:', error);
+      setMensagem('Erro ao excluir gasto!');
+    } finally {
+      setLoading(false);
+      setIdExcluir(null);
     }
   };
 
@@ -129,159 +256,264 @@ const GastosPage: React.FC = () => {
     carregarGastos();
   }, []);
 
+  useEffect(() => {
+    if (mensagem) {
+      const timer = setTimeout(() => {
+        setMensagem(null);
+      }, 6000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [mensagem]);
+
   return (
-    <>
-      <div className="container">
-        <h1>Gestão de Gastos</h1>
-        <form onSubmit={handleSubmit}>
-          <div>
-            <label>Descrição:</label>
-            <input
-              type="text"
-              value={descricao}
-              onChange={(e) => setDescricao(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <label>Valor:</label>
-            <input
-              type="text"
-              maxLength={15} // Limita a digitação
-              value={valor === 0 ? '' : valor}
-              onChange={(e) => {
-                const novoValor = formatarValor(e.target.value);
-                setValor(novoValor ? parseFloat(novoValor) : 0);
+    <div className="container">
+      <h1>Gestão de Gastos</h1>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>Descrição:</label>
+          <input
+            type="text"
+            maxLength={30}
+            value={descricao}
+            onChange={e => setDescricao(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label>Valor:</label>
+          <input
+            type="text"
+            maxLength={15}
+            value={valor}
+            onChange={handleValorChange}
+            required
+          />
+        </div>
+        <div style={{ position: 'relative' }}>
+          <label>Categoria:</label>
+          <input
+            type="text"
+            value={categoria}
+            onChange={handleCategoriaChange}
+            onFocus={() => {
+              const filtradas = categoriasExistentes;
+              setSugestoes(filtradas);
+              setMostrarSugestoes(filtradas.length > 0);
+            }}
+            onBlur={() => setTimeout(() => setMostrarSugestoes(false), 100)}
+            required
+          />
+          {mostrarSugestoes && (
+            <ul
+              style={{
+                position: 'absolute',
+                top: '100%',
+                left: 0,
+                width: '100%',
+                maxHeight: '150px',
+                overflowY: 'auto',
+                backgroundColor: 'white',
+                border: '1px solid #ccc',
+                borderRadius: '5px',
+                zIndex: 999,
+                color: '#000',
+                listStyle: 'none',
+                padding: '0.5rem 0',
+                margin: 0,
               }}
-              required
-            />
-          </div>
-          <div style={{ position: 'relative' }}>
-  <label>Categoria:</label>
-  <input
-    type="text"
-    value={categoria}
-    onChange={(e) => {
-      const input = e.target.value;
-      setCategoria(input);
-      if (input.length > 0) {
-        const filtradas = categoriasExistentes.filter((cat) =>
-          cat.toLowerCase().includes(input.toLowerCase())
-        );
-        setSugestoes(filtradas);
-        setMostrarSugestoes(filtradas.length > 0);
-      } else {
-        setMostrarSugestoes(false);
-      }
-    }}
-    onFocus={() => {
-      if (categoria.length > 0 && sugestoes.length > 0) {
-        setMostrarSugestoes(true);
-      }
-    }}
-    onBlur={() => {
-      setTimeout(() => setMostrarSugestoes(false), 100); // Espera clique em sugestão
-    }}
-    required
-  />
+            >
+              {sugestoes.map((sugestao, index) => (
+                <li
+                  key={index}
+                  style={{ padding: '0.5rem 1rem', cursor: 'pointer' }}
+                  onMouseDown={() => {
+                    setCategoria(sugestao);
+                    setMostrarSugestoes(false);
+                  }}
+                >
+                  {sugestao}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
 
-  {mostrarSugestoes && (
-    <ul
-      style={{
-        position: 'absolute',
-        top: '100%',
-        left: 0,
-        width: '100%',
-        maxHeight: '150px',
-        overflowY: 'auto',
-        backgroundColor: 'white',
-        border: '1px solid #ccc',
-        borderRadius: '5px',
-        zIndex: 999,
-        color: '#000',
-        listStyle: 'none',
-        padding: '0.5rem 0',
-        margin: 0,
-      }}
-    >
-      {sugestoes.map((sugestao, index) => (
-        <li
-          key={index}
-          style={{
-            padding: '0.5rem 1rem',
-            cursor: 'pointer',
-          }}
-          onMouseDown={() => {
-            setCategoria(sugestao);
-            setMostrarSugestoes(false);
-          }}
-        >
-          {sugestao}
-        </li>
-      ))}
-    </ul>
-  )}
-</div>
+        <div>
+          <label>Data:</label>
+          <input
+            type="date"
+            value={data}
+            onChange={(e) => {
+              setData(e.target.value);
+              setDataValida(!isNaN(new Date(e.target.value).getTime()));
+            }}
+            required
+          />
+        </div>
 
-          <div>
-            <label>Data:</label>
-            <input
-              type="date"
-              value={data}
-              onChange={(e) => {
-                setData(e.target.value);
-                setDataValida(validarData(e.target.value)); // Atualiza a validade da data
-              }}
-              required
-            />
-            {!dataValida && <p style={{ color: 'red' }}>Data inválida! Por favor, insira uma data válida.</p>}
-          </div>
-          <button type="submit" disabled={loading}>
-            {loading ? 'Carregando...' : editando ? 'Atualizar Gasto' : 'Adicionar Gasto'}
-          </button>
-        </form>
+        <div>
+          <label>Gasto recorrente?</label>
+          <select
+            value={gastoRecorrente}
+            onChange={(e) => setGastoRecorrente(e.target.value)}
+          >
+            <option value="nao">Não</option>
+            <option value="sim">Sim</option>
+          </select>
+        </div>
 
-        <h2>Lista de Gastos</h2>
-        {loading && <p>Carregando os dados...</p>}
-        <table>
-          <thead>
-            <tr>
-              <th>Descrição</th>
-              <th>Valor</th>
-              <th>Categoria</th>
-              <th>Data</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {gastos.map((gasto) => (
-              <tr key={gasto.id}>
-                <td style={{ maxWidth: '200px', wordBreak: 'break-word', whiteSpace: 'normal' }}>
-                  {gasto.descricao}
-                </td>
-                <td>R$ {gasto.valor.toFixed(2)}</td>
-                <td style={{ maxWidth: '150px', wordBreak: 'break-word', whiteSpace: 'normal' }}>
-                  {gasto.categoria}
-                </td>
-                <td>{new Date(gasto.data).toLocaleDateString('pt-BR')}</td>
-                <td>
-                  <button onClick={() => editarGasto(gasto)}>Editar</button>
-                  <button onClick={() => excluirGasto(gasto.id)}>Excluir</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <Link to="/estatisticas" className="botao-estatisticas">
-        <button>📊 Estatísticas</button>
-      </Link>
-      <Link to="/" className="botao-sair">
-        <button>
-          ← Sair
+        {gastoRecorrente === 'sim' && (
+          <>
+            <div className="checkbox-container">
+              <input
+                type="checkbox"
+                id="usoDataFixa"
+                checked={usoDataFixa}
+                onChange={() => setUsoDataFixa(!usoDataFixa)}
+              />
+              <label htmlFor="usoDataFixa">Usar datas fixas (ex: todo dia X do mês)</label>
+            </div>
+
+            {!usoDataFixa && (
+              <div>
+                <label className="label-info-wrapper" title="">
+                  Intervalo (em dias):
+                  <span
+                    className="info-icon"
+                    data-tooltip="A cada quantos dias este gasto será repetido."
+                    aria-label="Informação"
+                    tabIndex={0}
+                  >
+                    i
+                  </span>
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  value={intervaloDias}
+                  onChange={(e) => setIntervaloDias(parseInt(e.target.value))}
+                  required
+                />
+              </div>
+            )}
+
+            <div>
+              <label className="label-info-wrapper" title="">
+                Número de repetições:
+                <span
+                  className="info-icon"
+                  data-tooltip="Quantas vezes este gasto será lançado com base no intervalo informado."
+                  aria-label="Informação"
+                  tabIndex={0}
+                >
+                  i
+                </span>
+              </label>
+              <input
+                type="number"
+                min={1}
+                value={numeroRepeticoes}
+                onChange={(e) => setNumeroRepeticoes(parseInt(e.target.value))}
+                required
+              />
+            </div>
+          </>
+        )}
+
+
+        <button className="botao-padrao" type="submit" disabled={loading}>
+          {loading ? 'Carregando...' : editando ? 'Atualizar Gasto' : 'Adicionar Gasto'}
         </button>
+      </form>
+
+      {mensagem && (
+        <div
+          className={`mensagem ${mensagem.startsWith('exclusao:')
+            ? 'mensagem-exclusao mensagem-destaque'
+            : mensagem.startsWith('sucesso:')
+              ? 'mensagem-sucesso mensagem-destaque'
+              : mensagem.startsWith('erro:')
+                ? 'mensagem-erro mensagem-destaque'
+                : 'mensagem-erro'
+            }`}
+        >
+          {mensagem.replace(/^(exclusao:|sucesso:|erro:)/, '')}
+        </div>
+      )}
+
+      <h2>Lista de Gastos</h2>
+      <div className="filtro-container">
+        <label htmlFor="filtroCategoria" className="filtro-label">🔍 Filtrar por categoria:</label>
+        <input
+          id="filtroCategoria"
+          type="text"
+          placeholder="Digite uma categoria..."
+          value={filtroCategoria}
+          onChange={(e) => setFiltroCategoria(e.target.value)}
+          className="filtro-input"
+        />
+      </div>
+
+      {loading && <p>Carregando os dados...</p>}
+      <table>
+        <thead>
+          <tr>
+            <th onClick={() => ordenarPor('descricao')} style={{ cursor: 'pointer' }}>
+              Descrição {ordemCampo === 'descricao' && (ordemAscendente ? '↑' : '↓')}
+            </th>
+            <th onClick={() => ordenarPor('valor')} style={{ cursor: 'pointer' }}>
+              Valor {ordemCampo === 'valor' && (ordemAscendente ? '↑' : '↓')}
+            </th>
+            <th onClick={() => ordenarPor('categoria')} style={{ cursor: 'pointer' }}>
+              Categoria {ordemCampo === 'categoria' && (ordemAscendente ? '↑' : '↓')}
+            </th>
+            <th onClick={() => ordenarPor('data')} style={{ cursor: 'pointer' }}>
+              Data {ordemCampo === 'data' && (ordemAscendente ? '↑' : '↓')}
+            </th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {gastosFiltradosOrdenados.map((gasto) => (
+            <tr key={gasto.id}>
+              <td>{gasto.descricao}</td>
+              <td>R$ {gasto.valor.toFixed(2)}</td>
+              <td>{gasto.categoria}</td>
+              <td>{new Date(gasto.data).toLocaleDateString('pt-BR')}</td>
+              <td>
+                <button onClick={() => editarGasto(gasto)}>Editar</button>
+                <button onClick={() => abrirConfirmacaoExclusao(gasto.id)}>Excluir</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <Link to="/estatisticas">
+        <button className="botao-estatisticas">Estatísticas 🚀</button>
       </Link>
-    </>
+
+      <Link to="/">
+        <button className="botao-sair">⨞ Sair</button>
+      </Link>
+
+      {mostrarConfirmacao && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <p className="modal-text">Tem certeza que deseja excluir este gasto?</p>
+            <div className="modal-buttons">
+              <button onClick={confirmarExclusao} className="modal-button confirmar">
+                Sim
+              </button>
+              <button onClick={cancelarExclusao} className="modal-button cancelar">
+                Não
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
