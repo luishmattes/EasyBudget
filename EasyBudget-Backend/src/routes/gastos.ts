@@ -153,4 +153,33 @@ router.get('/categorias', async (_req: Request, res: Response) => {
   }
 });
 
+// GET /gastos/por-data
+router.get('/por-data', async (req, res) => {
+  try {
+    const { inicio, fim } = filtroSchema.parse(req.query);
+
+    const where = inicio && fim ? {
+      data: {
+        gte: new Date(inicio),
+        lte: new Date(fim),
+      },
+    } : undefined;
+
+    const resultado = await prisma.gasto.groupBy({
+      by: ['data'],
+      _sum: {
+        valor: true,
+      },
+      where,
+      orderBy: { data: 'asc' },
+    });
+
+    res.json(resultado);
+  } catch (error) {
+    console.error('Erro ao buscar dados por data:', error);
+    res.status(500).json({ error: 'Erro ao buscar dados por data' });
+  }
+});
+
+
 export default router;

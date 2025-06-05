@@ -9,8 +9,9 @@
   --azul-suave: hsl(211, 68%, 86%);
   --azul-gradient-start: #001f3d;
   --azul-gradient-end: #003b5c;
-  --green: #00ff22;
-  --red: #860802;
+  --green1: #01ad18;
+  --green2: #32ee4b;
+  --red: #b30900;
   --grey: #747373dd;
 }
 
@@ -34,20 +35,27 @@ body {
 }
 
 .container {
+  background-color: var(--branco);
+  border-radius: 2rem;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 1400px;
   display: flex;
   flex-direction: column;
   align-items: center; 
-  justify-content: flex-start; 
+}
+/* Container principal */
+.estatisticas-container {
   background-color: var(--branco);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  color: var(--azul-escuro);
+  border-radius: 2rem;
   padding: 2rem;
-  border-radius: 30px;
-  width: clamp(300px, 90%, 900px);
-  margin: 2rem auto;
-  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  max-width: 1400px;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Cabeçalhos */
 h1 {
   text-align: center;
   color: var(--azul-escuro);
@@ -64,7 +72,6 @@ h2 {
   margin: 0.5rem 0;
 }
 
-/* Formulário */
 form {
   display: flex;
   flex-direction: column;
@@ -94,11 +101,10 @@ input, select, button {
 }
 
 input:focus, select:focus {
-  border-color: var(--green);
+  border-color: var(--green2);
   outline: none;
 }
 
-/* Botões */
 button {
   background-color: var(--azul-escuro);
   color: var(--branco);
@@ -113,7 +119,7 @@ button {
 }
 
 button:hover {
-  background-color: var(--green);
+  background-color: var(--green1);
 }
 
 button.delete {
@@ -327,7 +333,6 @@ tr:hover {
   z-index: 10;
 }
 
-/* Checkbox estilizado */
 .checkbox-container {
   display: flex;
   align-items: center;
@@ -343,21 +348,20 @@ tr:hover {
 .checkbox-container input[type="checkbox"] {
   width: 20px;
   height: 20px;
-  accent-color: var(--green);
+  accent-color: var(--green2);
   border-radius: 5px;
   cursor: pointer;
   transition: box-shadow 0.3s ease;
 }
 
 .checkbox-container:hover {
-  color: var(--green);
+  color: var(--green2);
 }
 
 .checkbox-container:hover input[type="checkbox"] {
-  box-shadow: 0 0 8px var(--green);
+  box-shadow: 0 0 8px var(--green2);
 }
 
-/* Inputs numéricos com box leve */
 input[type="number"] {
   border: 2px solid var(--azul-medio);
   border-radius: 12px;
@@ -370,18 +374,17 @@ input[type="number"] {
 }
 
 input[type="number"]:focus {
-  border-color: var(--green);
-  box-shadow: 0 0 12px var(--green);
+  border-color: var(--green2);
+  box-shadow: 0 0 12px var(--green2);
   outline: none;
 }
 
 .filtro-container {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin: 20px 0;
+  gap: 8px;
+  margin: 2px;
   background-color: #f9f9f9;
-  padding: 12px 16px;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
   flex-wrap: wrap;
@@ -406,11 +409,16 @@ input[type="number"]:focus {
 
 /* Página Home */
 .home-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   flex-direction: row;
   min-height: 100vh;
   width: 100vw;
-  background: linear-gradient(180deg, var(--azul-escuro), var(--grey));
+  background: linear-gradient(180deg, var(--azul-escuro), var(--azul-escuro));
   color: var(--branco);
   padding: 4rem;
 }
@@ -445,7 +453,7 @@ input[type="number"]:focus {
 }
 
 .home-card {
-  background: linear-gradient(180deg, var(--branco), var(--grey));
+  background: linear-gradient(180deg, var(--branco), var(--branco));
   color: var(--azul-escuro);
   padding: 3rem;
   border-radius: 30px;
@@ -467,7 +475,7 @@ input[type="number"]:focus {
 .home-button {
   padding: 1rem 2rem;
   font-size: 1.1rem;
-  background-color: var(--azul-gradient-start);
+  background-color: var(--azul-escuro);
   color: var(--branco);
   border: none;
   border-radius: 30px;
@@ -476,7 +484,7 @@ input[type="number"]:focus {
 }
 
 .home-button:hover {
-  background-color: var(--azul-escuro);
+  background-color: var(--green1);
 }
 .botao-estatisticas {
   position: fixed;
@@ -484,7 +492,7 @@ input[type="number"]:focus {
   right: 1rem;
   z-index: 999;
   
-  background-color: var(--green);
+  background-color: var(--green2);
   color: var(--branco);
   padding: 0.6rem 1.2rem;
   border: none;
@@ -497,13 +505,13 @@ input[type="number"]:focus {
 }
 
 .botao-estatisticas:hover {
-  background-color: var(--azul-medio);
+  background-color: var(--green1);
 }
 
 
 .botao-sair{
   position: fixed;
-  bottom: 1.5rem;
+  top: 1.5rem;
   left: 1.5rem;
   z-index: 999;
 
@@ -526,123 +534,42 @@ input[type="number"]:focus {
 
 /* --- RESPONSIVIDADE --- */
 
-.table-wrapper {
-  width: 100%;
-  overflow-x: auto;
-}
-
-@media (max-width: 900px) {
-  .home-container {
-    flex-direction: column;
-    padding: 2rem;
-    text-align: center;
-  }
-
-  .home-left, .home-right {
-    width: 100%;
-    padding: 1rem 0;
-  }
-
-  .home-card {
-    margin: 2rem auto;
-    padding: 2rem;
-  }
-
-  .home-left h1 {
-    font-size: 2.2rem;
-  }
-
-  .home-welcome-message {
-    font-size: 1.2rem;
-  }
-}
-
-@media (max-width: 768px) {
-  h1 {
-    font-size: 2rem;
-  }
-
-  h2 {
-    font-size: 1.6rem;
-  }
-
-  .container {
-    padding: 1.5rem;
-    width: 95%;
-  }
-
-  input, select, button {
-    font-size: 0.95rem;
-    padding: 0.8rem;
-  }
-
-  table {
-    font-size: 0.9rem;
-  }
-
-  th, td {
-    padding: 0.8rem;
-  }
-}
-
 @media (max-width: 480px) {
   body {
-    padding: 0.5rem;
-    flex-direction: column;
+    padding: 1rem;
+    align-items: flex;
   }
 
   .container {
-    padding: 1rem;
+    display: flex;
     width: 100%;
+    height: 100%;
+    padding: 1rem;
   }
 
   h1 {
-    font-size: 1.7rem;
+    font-size: 1.8rem;
   }
 
   h2 {
-    font-size: 1.4rem;
+    font-size: 1.8rem;
   }
 
   input, select, button {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     padding: 0.7rem;
   }
 
   table {
-    font-size: 0.8rem;
+    width: 100%;
   }
 
   th, td {
-    padding: 0.6rem;
+    padding: 0.5rem;
   }
 
   .home-button {
     font-size: 1rem;
     padding: 0.8rem 1.5rem;
-  }
-}
-
-@media (max-width: 320px) {
-  h1 {
-    font-size: 1.4rem;
-  }
-
-  h2 {
-    font-size: 1.2rem;
-  }
-
-  input, select, button {
-    font-size: 0.8rem;
-    padding: 0.6rem;
-  }
-
-
-  .home-card {
-    padding: 1.5rem;
-  }
-
-  .home-welcome-message {
-    font-size: 1rem;
   }
 }
